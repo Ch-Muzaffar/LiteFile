@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LiteFile — Free Online Image & PDF Tools, 100% In Your Browser</title>
+  <meta name="description" content="Free browser-based tools for images and PDFs. Compress, convert, resize, merge, split, and remove backgrounds — 100% in your browser. Nothing is ever uploaded to a server." />
+  <link rel="canonical" href="https://litefile.cloud/" />
+
+  <!-- Open Graph -->
+  <meta property="og:title"       content="LiteFile — Free Online Image & PDF Tools" />
+  <meta property="og:description" content="Compress, convert, resize, merge, split, remove backgrounds. 100% in your browser — nothing uploaded, ever." />
+  <meta property="og:url"         content="https://litefile.cloud/" />
+  <meta property="og:type"        content="website" />
+  <meta property="og:image"       content="https://litefile.cloud/assets/og/home.png" />
+  <meta name="twitter:card"       content="summary_large_image" />
+  <meta name="twitter:title"      content="LiteFile — Free Online Image & PDF Tools" />
+  <meta name="twitter:description"content="10 free browser-based tools for images, PDFs, and more. Nothing uploaded, ever." />
+
+  <!-- JSON-LD: WebSite -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "LiteFile",
+    "url": "https://litefile.cloud",
+    "description": "Free browser-based tools for images and PDFs. Nothing is ever uploaded to a server.",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://litefile.cloud/?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+
+  <!-- JSON-LD: ItemList (all tools) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "LiteFile Free Online Tools",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1,  "name": "Remove Image Background", "url": "https://litefile.cloud/remove-background" },
+      { "@type": "ListItem", "position": 2,  "name": "Merge PDF",               "url": "https://litefile.cloud/merge-pdf" },
+      { "@type": "ListItem", "position": 3,  "name": "HEIC to JPG Converter",   "url": "https://litefile.cloud/heic-to-jpg" },
+      { "@type": "ListItem", "position": 4,  "name": "Compress PDF",            "url": "https://litefile.cloud/compress-pdf" },
+      { "@type": "ListItem", "position": 5,  "name": "Resize Image",            "url": "https://litefile.cloud/resize-image" },
+      { "@type": "ListItem", "position": 6,  "name": "Split PDF",               "url": "https://litefile.cloud/split-pdf" },
+      { "@type": "ListItem", "position": 7,  "name": "Compress Image",          "url": "https://litefile.cloud/compress-image" },
+      { "@type": "ListItem", "position": 8,  "name": "Convert Image Format",    "url": "https://litefile.cloud/convert-image" },
+      { "@type": "ListItem", "position": 9,  "name": "QR Code Generator",       "url": "https://litefile.cloud/qr-code" },
+      { "@type": "ListItem", "position": 10, "name": "Video to MP3 Converter",  "url": "https://litefile.cloud/video-to-mp3" }
+    ]
+  }
+  </script>
+
+  <link rel="stylesheet" href="assets/style.css" />
+  <style>
+    /* ── Homepage-specific styles ── */
+
+    /* Stats strip */
+    .stats-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--s4);
+      margin: var(--s7) 0;
+    }
+
+    .stat-item {
+      text-align: center;
+      padding: var(--s4) var(--s3);
+    }
+
+    .stat-value {
+      font-size: var(--text-2xl);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      line-height: 1;
+      margin-bottom: var(--s2);
+    }
+
+    .stat-label {
+      font-size: var(--text-sm);
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* Tool section label */
+    .tools-section { margin-bottom: var(--s7); }
+
+    .tools-section-header {
+      display: flex;
+      align-items: center;
+      gap: var(--s4);
+      margin-bottom: var(--s5);
+    }
+
+    .tools-section-header h2 {
+      font-size: var(--text-lg);
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+    }
+
+    .tools-section-header::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--glass-border);
+    }
+
+    /* Tool card icon area */
+    .tool-card-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--accent-subtle);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: var(--r-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      flex-shrink: 0;
+      transition: background var(--t) var(--ease), border-color var(--t) var(--ease);
+    }
+
+    .tool-card:hover .tool-card-icon {
+      background: rgba(99, 102, 241, 0.18);
+      border-color: rgba(99, 102, 241, 0.35);
+    }
+
+    /* Why section */
+    .why-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--s4);
+    }
+
+    .why-card {
+      padding: var(--s6) var(--s5);
+    }
+
+    .why-icon {
+      width: 44px;
+      height: 44px;
+      background: var(--accent-subtle);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: var(--r-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      margin-bottom: var(--s4);
+    }
+
+    .why-card h3 {
+      font-size: var(--text-base);
+      font-weight: 600;
+      margin-bottom: var(--s2);
+    }
+
+    .why-card p {
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      line-height: 1.65;
+    }
+
+    /* Featured tool card (Remove Background — AI) */
+    .tool-card--featured .tool-card-label {
+      color: var(--success);
+    }
+
+    .tool-card--featured .tool-card-icon {
+      background: var(--success-subtle);
+      border-color: rgba(16, 185, 129, 0.25);
+      color: var(--success);
+    }
+
+    .tool-card--featured:hover .tool-card-icon {
+      background: rgba(16, 185, 129, 0.2);
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .stats-strip { grid-template-columns: repeat(2, 1fr); gap: var(--s3); }
+      .why-grid    { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 600px) {
+      .stats-strip { grid-template-columns: repeat(2, 1fr); }
+      .stat-value  { font-size: var(--text-xl); }
+    }
+  </style>
+</head>
+<body>
+
+<div id="nav-slot"></div>
+
+<main>
+
+  <!-- ── Hero ── -->
+  <section class="hero" aria-label="Hero">
+    <div class="container">
+      <p class="text-muted font-medium" style="font-size:var(--text-sm);margin-bottom:var(--s4);letter-spacing:0.04em;text-transform:uppercase;font-size:var(--text-xs)">10 free tools &nbsp;·&nbsp; Zero uploads &nbsp;·&nbsp; Works offline</p>
+      <h1>Free Image, PDF &amp; Utility Tools<br>That Run in Your Browser</h1>
+      <p class="hero-tagline">Compress, convert, resize, merge, split, remove backgrounds, generate QR codes, and extract audio — 100% on your device. No upload, no account, no cost.</p>
+      <div class="badge-row" style="justify-content:center">
+        <span class="badge">No upload</span>
+        <span class="badge">100% free</span>
+        <span class="badge">No signup</span>
+        <span class="badge badge--accent">Works offline</span>
+        <span class="badge badge--accent">No watermark</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="container">
+
+    <!-- ── Stats strip ── -->
+    <div class="stats-strip fade-in" aria-label="Key facts">
+      <div class="stat-item glass-card">
+        <div class="stat-value">10</div>
+        <div class="stat-label">Free tools</div>
+      </div>
+      <div class="stat-item glass-card">
+        <div class="stat-value">0</div>
+        <div class="stat-label">Files uploaded</div>
+      </div>
+      <div class="stat-item glass-card">
+        <div class="stat-value">0</div>
+        <div class="stat-label">Account required</div>
+      </div>
+      <div class="stat-item glass-card">
+        <div class="stat-value">&infin;</div>
+        <div class="stat-label">Uses per day</div>
+      </div>
+    </div>
+
+    <!-- ── Image Tools ── -->
+    <section class="tools-section" aria-labelledby="image-tools-heading">
+      <div class="tools-section-header">
+        <h2 id="image-tools-heading">Image Tools</h2>
+      </div>
+      <div class="tool-grid stagger-children">
+
+        <!-- Remove Background -->
+        <a href="/remove-background" class="glass-card tool-card tool-card--featured fade-in" aria-label="Remove image background — AI tool">
+          <div class="tool-card-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2"/>
+              <circle cx="12" cy="10" r="3"/>
+              <path d="M6 21v-1a6 6 0 0 1 12 0v1"/>
+            </svg>
+          </div>
+          <div class="tool-card-label">AI Tool</div>
+          <h3>Remove Background</h3>
+          <p>Remove the background from any image instantly using AI. Runs entirely in your browser — no upload, no watermark, transparent PNG output.</p>
+          <div class="tool-card-arrow" aria-hidden="true">→</div>
+        </a>
+
+        <!-- HEIC to JPG -->
+        <a href="/heic-to-jpg" class="glass-card tool-card fade-in" aria-label="Convert HEIC to JPG">
+          <div class="tool-card-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/>
+              <polyline points="13 2 13 9 20 9"/>
+              <path d="M8 13h3m0 0v4m0-4l3 4"/>
+            </svg>
+          </div>
+          <div class="tool-card-label">Image</div>
+          <h3>HEIC to JPG</h3>
+          <p>Convert iPhone HEIC photos to JPG or PNG. Batch convert multiple files at once — fully private, nothing sent to a server.</p>
+          <div class="tool-card-arrow" aria-hidden="true">→</div>
+        </a>
+
+        <!-- Compress Image -->
+        <a href="/compress-image" class="glass-card tool-card fade-in" aria-label="Compress image online free">
+          <div class="tool-card-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2"/>
+              <circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21 15 16 10 5 21"/>
+            </svg>
+          </div>
+          <div class="tool-card-label">Image</div>
+          <h3>Compress Image</h3>
+          <p>Reduce JPG, PNG, and WebP file size with a quality slider. Typically 40–80% smaller with no visible difference.</p>
+          <div class="tool-card-arrow" aria-hidden="true">→</div>
+        </a>
+
+        <!-- Resize Image -->
+        <a href="/resize-image" class="glass-card tool-card fade-in" aria-label="Resize image online free">
+          <div class="tool-card-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+            </svg>
+          </div>
+          <div class="tool-card-label">Image</div>
+          <h3>Resize Image</h3>
+          <p>Resize to exact pixel dimensions and convert between JPG, PNG, and WebP — all in one step, instant, free.</p>
+          <div class="tool-card-arrow" aria-hidden="true">→</div>
+        </a>
+
+        <!-- Convert Image -->
+        <a href="/convert-image" class="glass-card tool-card fade-in" aria-label="Convert image format online free">
+          <div class="tool-card-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="17 1 21 5 17 9"/>
+              <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+              <polyline points="7 23 3 19 7 15"/>
+              <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+            </svg>
+          </div>
+          <div class="tool-card-label">Image</div>
+          <h3>Convert Image Format</h3>
+          <p>Convert between JPG, PNG, WebP, BMP, and HEIC formats. Batch convert multiple files and download as ZIP.</p>
+          <div class="tool-card-arrow" aria-hidden="true">→</div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- ── PDF Tools ── -->
+    <section class="tools-section" aria-labelledby="pdf-tools-heading">
+      <div class="tools-section-header">
+        <h2 id="pdf-tools-heading">PDF Tools</h2>
+      </div>
+      <div class="tool-grid stagger-children">
+
+        <!-- Merge PDF -->
+        <a href="/merge-pdf" class="glass-card tool-card fade-in" aria-label="Merge PDF files online free">
+          <div class="tool-card-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-2"/>
+              <rect x="10" y="2" width="12" height="14" rx="2"/>
+            </svg>
+          </div>
+          <div class="tool-card-label">PDF</div>
+          <h3>Merge PDF</h3>
+          <p>Combine multiple PDF files into a single document. Drag to reorder pages before merging — instant, no quality loss.</p>
+          <div class="tool-card-arrow" aria-hidden="true">→</div>
+        </a>
+
+        <!-- Compress PDF -->
+        <a href="/compress-pdf" class="glass-card tool-card fade-in" aria-label="Compress PDF online free">
+          <div class="tool-card-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="12" y1="12" x2="12" y2="18"/>
+              <polyline points="9 15 12 18 15 15"/>
+            </svg>
+          </div>
+          <div class="tool-card-label">PDF</div>
+          <h3>Compress PDF</h3>
+          <p>Reduce PDF file size for sharing and storage. Works best on scanned documents and image-heavy PDFs.</p>
+          <div class="tool-card-arrow" aria-hidden="true">→</div>
+        </a>
+
+        <!-- Split PDF -->
+        <a href="/split-pdf" class="glass-card tool-card fade-in" aria-label="Split PDF online free">
+          <div class="tool-card-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="12" y1="18" x2="12" y2="12"/>
+              <polyline points="9 15 12 12 15 15"/>
+            </svg>
+          </div>
+          <div class="tool-card-label">PDF</div>
+          <h3>Split PDF</h3>
+          <p>Extract individual pages or split by custom ranges. Download all pages as a ZIP or get specific pages as separate PDFs.</p>
+          <div class="tool-card-arrow" aria-hidden="true">→</div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- ── More Tools ── -->
+    <section class="tools-section" aria-labelledby="more-tools-heading">
+      <div class="tools-section-header">
+        <h2 id="more-tools-heading">More Tools</h2>
+      </div>
+      <div class="tool-grid stagger-children">
+
+        <!-- QR Code Generator -->
+        <a href="/qr-code" class="glass-card tool-card fade-in" aria-label="QR Code Generator free online">
+          <div class="tool-card-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7" rx="1"/>
+              <rect x="14" y="3" width="7" height="7" rx="1"/>
+              <rect x="3" y="14" width="7" height="7" rx="1"/>
+              <line x1="14" y1="14" x2="14" y2="14.01"/>
+              <line x1="18" y1="14" x2="18" y2="14.01"/>
+              <line x1="21" y1="17" x2="21" y2="17.01"/>
+              <line x1="14" y1="21" x2="14" y2="21.01"/>
+              <line x1="18" y1="18" x2="18" y2="21"/>
+            </svg>
+          </div>
+          <div class="tool-card-label">Utility</div>
+          <h3>QR Code Generator</h3>
+          <p>Generate QR codes for URLs, text, or contact info. Custom colours, error correction, and PNG or SVG download.</p>
+          <div class="tool-card-arrow" aria-hidden="true">→</div>
+        </a>
+
+        <!-- Video to MP3 -->
+        <a href="/video-to-mp3" class="glass-card tool-card fade-in" aria-label="Video to MP3 converter free online">
+          <div class="tool-card-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 18V5l12-2v13"/>
+              <circle cx="6" cy="18" r="3"/>
+              <circle cx="18" cy="16" r="3"/>
+            </svg>
+          </div>
+          <div class="tool-card-label">Utility</div>
+          <h3>Video to MP3</h3>
+          <p>Extract audio from MP4, MOV, AVI, MKV, and WebM videos as MP3 or M4A. Powered by FFmpeg WebAssembly — nothing uploaded.</p>
+          <div class="tool-card-arrow" aria-hidden="true">→</div>
+        </a>
+
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- ── Why LiteFile ── -->
+    <section class="section--sm" aria-labelledby="why-heading">
+      <div style="text-align:center;margin-bottom:var(--s7)">
+        <h2 class="section-heading fade-in" id="why-heading">Why LiteFile?</h2>
+        <p class="section-sub fade-in" style="margin:var(--s3) auto 0;text-align:center">Most online tools upload your files to a server. LiteFile never does. Here's what that means for you.</p>
+      </div>
+      <div class="why-grid">
+
+        <div class="glass-card why-card fade-in">
+          <div class="why-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </div>
+          <h3>Your files never leave your device</h3>
+          <p>Every tool runs using JavaScript and WebAssembly directly in your browser. No file ever touches a server — not ours, not anyone's. What you process stays on your device, period.</p>
+        </div>
+
+        <div class="glass-card why-card fade-in">
+          <div class="why-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <h3>Instant results, no server roundtrip</h3>
+          <p>Processing starts the moment you drop a file. No queues, no "please wait," no upload progress bar eating your time. Your device does the work — usually in under a second.</p>
+        </div>
+
+        <div class="glass-card why-card fade-in">
+          <div class="why-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="1" x2="12" y2="23"/>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+          </div>
+          <h3>Always free, no strings attached</h3>
+          <p>No account required. No watermarks. No "3 free conversions per day" limits. No hidden upsell. Every tool on LiteFile is free to use as many times as you want, today and always.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- ── Trusted for ── -->
+    <section class="section--sm" style="text-align:center" aria-labelledby="usecases-heading">
+      <h2 class="section-heading fade-in" id="usecases-heading" style="margin-bottom:var(--s5)">Built for everyday tasks</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:var(--s3);text-align:left">
+        <div class="glass-card fade-in" style="padding:var(--s4) var(--s5)">
+          <p style="font-size:var(--text-sm);font-weight:600;margin-bottom:var(--s2)">Sending photos by email</p>
+          <p style="font-size:var(--text-sm);color:var(--text-secondary)">Compress or resize images to meet attachment size limits.</p>
+        </div>
+        <div class="glass-card fade-in" style="padding:var(--s4) var(--s5)">
+          <p style="font-size:var(--text-sm);font-weight:600;margin-bottom:var(--s2)">iPhone photos on Windows</p>
+          <p style="font-size:var(--text-sm);color:var(--text-secondary)">Convert HEIC files to JPG so they open on any device.</p>
+        </div>
+        <div class="glass-card fade-in" style="padding:var(--s4) var(--s5)">
+          <p style="font-size:var(--text-sm);font-weight:600;margin-bottom:var(--s2)">Product photos for e-commerce</p>
+          <p style="font-size:var(--text-sm);color:var(--text-secondary)">Remove backgrounds and compress images before uploading to your store.</p>
+        </div>
+        <div class="glass-card fade-in" style="padding:var(--s4) var(--s5)">
+          <p style="font-size:var(--text-sm);font-weight:600;margin-bottom:var(--s2)">Submitting documents online</p>
+          <p style="font-size:var(--text-sm);color:var(--text-secondary)">Merge multiple PDFs into one or compress a large PDF to meet upload limits.</p>
+        </div>
+        <div class="glass-card fade-in" style="padding:var(--s4) var(--s5)">
+          <p style="font-size:var(--text-sm);font-weight:600;margin-bottom:var(--s2)">Web and app development</p>
+          <p style="font-size:var(--text-sm);color:var(--text-secondary)">Quickly resize and convert images to WebP for faster page loads.</p>
+        </div>
+        <div class="glass-card fade-in" style="padding:var(--s4) var(--s5)">
+          <p style="font-size:var(--text-sm);font-weight:600;margin-bottom:var(--s2)">Sensitive documents</p>
+          <p style="font-size:var(--text-sm);color:var(--text-secondary)">Process confidential PDFs knowing they never touch an external server.</p>
+        </div>
+      </div>
+    </section>
+
+    <div style="height:var(--s7)"></div>
+
+  </div><!-- /container -->
+</main>
+
+<div id="footer-slot"></div>
+
+<script src="assets/utils.js"></script>
+</body>
+</html>

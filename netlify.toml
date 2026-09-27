@@ -1,0 +1,41 @@
+# LiteFile — Netlify deployment config
+# Deploy by connecting this repo in the Netlify dashboard.
+# Set "Publish directory" to: .  (the repo root)
+
+[build]
+  publish = "."
+
+# ── Headers ────────────────────────────────────────────────────────────────
+# Security + cache strategy.
+# HTML pages: always revalidate.
+# CSS/JS: 1 day.
+# Favicon and OG images: 1 year immutable.
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options  = "nosniff"
+    X-Frame-Options         = "SAMEORIGIN"
+    Referrer-Policy         = "strict-origin-when-cross-origin"
+    Permissions-Policy      = "camera=(), microphone=(), geolocation=()"
+    Cache-Control           = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/assets/style.css"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+[[headers]]
+  for = "/assets/utils.js"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+[[headers]]
+  for = "/assets/favicon.svg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/assets/og/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Compress Image Online Free — Reduce Image File Size | LiteFile</title>
+  <meta name="description" content="Compress JPG, PNG, and WebP images online for free. Reduce file size without visible quality loss — runs 100% in your browser, no upload required." />
+  <link rel="canonical" href="https://litefile.cloud/compress-image" />
+
+  <meta property="og:title"       content="Compress Image Online Free — LiteFile" />
+  <meta property="og:description" content="Reduce JPG, PNG, and WebP image file size in seconds. 100% in your browser — no upload, no signup, free." />
+  <meta property="og:url"         content="https://litefile.cloud/compress-image" />
+  <meta property="og:type"        content="website" />
+  <meta property="og:image"       content="https://litefile.cloud/assets/og/compress-image.png" />
+  <meta name="twitter:card"       content="summary_large_image" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How much can I compress an image without losing quality?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "For JPEG and WebP, a quality setting of 80–85% typically reduces file size by 60–80% with no visible difference to the human eye. Below 70%, compression artifacts become noticeable in smooth gradients and fine details. PNG compression is lossless — file size reduction is smaller (typically 5–20%) since no quality is sacrificed."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Will my image be uploaded to a server?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. Compression runs entirely in your browser using the Canvas API. Your image is never transmitted to LiteFile or any third party. The tool works fully offline once the page has loaded."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I compress multiple images at once?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Drop or select multiple images at once and LiteFile will compress them all with the same quality setting. Each file downloads individually with its compressed filename."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why does compressing a PNG not reduce its size much?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "PNG uses lossless compression, which means every pixel is stored exactly. The only way to meaningfully reduce a PNG's size is to reduce its dimensions (use Resize Image) or convert it to a lossy format like JPEG or WebP. If your image has transparency that you need to preserve, PNG is the right format regardless of size."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is the difference between compressing as JPG versus WebP?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "WebP typically produces files 25–35% smaller than JPEG at the same visual quality. Both are lossy formats and do not support transparency. WebP is supported by all modern browsers but may not open in older software. JPEG is universally compatible. For web use, WebP is the better choice; for email or legacy software, stick with JPEG."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <link rel="stylesheet" href="assets/style.css" />
+  <style>
+    .tool-wrap { max-width: 820px; margin: 0 auto; }
+    .tool-card { padding: var(--s6); }
+
+    /* ── Controls strip ── */
+    .controls-strip {
+      display: flex;
+      align-items: center;
+      gap: var(--s5);
+      padding: var(--s4) var(--s5);
+      background: var(--bg-elevated);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--r-md);
+      margin-bottom: var(--s5);
+      flex-wrap: wrap;
+    }
+
+    .ctrl-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--s2);
+      flex: 1;
+      min-width: 140px;
+    }
+
+    .ctrl-label {
+      font-size: var(--text-xs);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-muted);
+    }
+
+    .ctrl-row {
+      display: flex;
+      align-items: center;
+      gap: var(--s3);
+    }
+
+    .quality-slider {
+      flex: 1;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--bg-base);
+      border: 1px solid var(--glass-border);
+      outline: none;
+      cursor: pointer;
+    }
+    .quality-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+    }
+    .quality-slider::-moz-range-thumb {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: none; cursor: pointer;
+    }
+
+    .quality-value {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--text-primary);
+      min-width: 36px;
+      text-align: right;
+    }
+
+    .format-select {
+      width: 100%;
+      padding: 7px var(--s3);
+      background: var(--bg-base);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--r-sm);
+      color: var(--text-primary);
+      font-size: var(--text-sm);
+      cursor: pointer;
+      transition: border-color var(--t) var(--ease);
+    }
+    .format-select:focus { outline: none; border-color: var(--accent); }
+
+    /* ── File list ── */
+    .files-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--s4);
+      gap: var(--s3);
+      flex-wrap: wrap;
+    }
+
+    .files-header-title {
+      font-size: var(--text-base);
+      font-weight: 600;
+    }
+
+    .file-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--s2);
+      margin-bottom: var(--s4);
+    }
+
+    /* ── File item ── */
+    .file-item {
+      display: grid;
+      grid-template-columns: auto 1fr auto auto;
+      align-items: center;
+      gap: var(--s3);
+      padding: var(--s3) var(--s4);
+      background: var(--bg-elevated);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--r-md);
+      transition: border-color var(--t) var(--ease);
+    }
+    .file-item.done     { border-color: rgba(16,185,129,0.3); }
+    .file-item.errored  { border-color: rgba(239,68,68,0.3); }
+
+    .file-item-thumb {
+      width: 44px; height: 44px;
+      border-radius: var(--r-sm);
+      object-fit: cover;
+      background: var(--bg-base);
+      flex-shrink: 0;
+      display: block;
+    }
+
+    .file-item-info { min-width: 0; }
+
+    .file-item-name {
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--text-primary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .file-item-meta {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .file-item-saving {
+      font-size: var(--text-xs);
+      font-weight: 600;
+      color: var(--success);
+    }
+
+    .file-item-status {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px; height: 28px;
+    }
+
+    .file-item-dl {
+      width: 28px; height: 28px;
+      border-radius: var(--r-sm);
+      background: var(--bg-base);
+      border: 1px solid var(--glass-border);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-muted);
+      flex-shrink: 0;
+      transition: color var(--t) var(--ease), background var(--t) var(--ease), border-color var(--t) var(--ease);
+    }
+    .file-item-dl:hover:not(:disabled) {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: var(--accent-subtle);
+    }
+    .file-item-dl:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    /* ── Add more + actions footer ── */
+    .add-more-zone {
+      border: 2px dashed var(--glass-border);
+      border-radius: var(--r-md);
+      padding: var(--s4);
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+      margin-bottom: var(--s4);
+      transition: border-color var(--t) var(--ease), background var(--t) var(--ease);
+      font-size: var(--text-sm);
+      color: var(--text-muted);
+    }
+    .add-more-zone:hover,
+    .add-more-zone.drag-over {
+      border-color: var(--accent);
+      background: var(--accent-subtle);
+      color: var(--text-secondary);
+    }
+    .add-more-zone input[type="file"] {
+      position: absolute; inset: 0;
+      opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+
+    .list-footer {
+      border-top: 1px solid var(--glass-border);
+      padding-top: var(--s4);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--s4);
+      flex-wrap: wrap;
+    }
+
+    .list-summary {
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+    }
+    .list-summary strong { color: var(--text-primary); }
+    .list-summary .saving { color: var(--success); font-weight: 600; }
+
+    .list-actions { display: flex; gap: var(--s3); }
+
+    /* ── State: processing / empty ── */
+    .state-center {
+      text-align: center;
+      padding: var(--s8) var(--s5);
+    }
+    .state-center .spinner {
+      width: 36px; height: 36px; border-width: 3px;
+      margin: 0 auto var(--s5);
+    }
+    .state-title { font-size: var(--text-md); font-weight: 600; margin-bottom: var(--s2); }
+    .state-sub   { font-size: var(--text-sm); color: var(--text-muted); }
+
+    /* ── Related grid ── */
+    .related-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--s4);
+      margin-top: var(--s5);
+    }
+
+    @media (max-width: 620px) {
+      .tool-card      { padding: var(--s4); }
+      .controls-strip { flex-direction: column; align-items: stretch; gap: var(--s4); }
+      .ctrl-group     { min-width: unset; }
+      .list-footer    { flex-direction: column; align-items: stretch; }
+      .list-actions   { flex-direction: column; }
+      .related-grid   { grid-template-columns: 1fr; }
+      .files-header   { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="nav-slot"></div>
+
+<main>
+
+  <!-- ── Hero ── -->
+  <section class="hero hero--tool" aria-label="Tool introduction">
+    <div class="container">
+      <h1>Compress Image Online Free</h1>
+      <p class="hero-tagline">Reduce JPG, PNG, and WebP file sizes without visible quality loss. Batch compress multiple images at once — 100% in your browser, no upload, no signup.</p>
+      <div class="badge-row" style="justify-content:center">
+        <span class="badge badge--accent">Batch support</span>
+        <span class="badge">No upload</span>
+        <span class="badge">100% free</span>
+        <span class="badge">Live size estimate</span>
+        <span class="badge">JPG · PNG · WebP</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="container">
+    <div class="tool-wrap">
+
+      <div class="glass-card tool-card" role="region" aria-label="Image compressor tool">
+
+        <!-- STATE: Upload -->
+        <div id="state-upload">
+          <div class="upload-zone" id="upload-zone" role="button" aria-label="Upload images to compress">
+            <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp" multiple aria-label="Choose image files" />
+            <div id="upload-icon-slot" class="upload-icon" aria-hidden="true"></div>
+            <h3>Drop your images here</h3>
+            <p>or click to browse — select multiple files at once</p>
+            <span class="upload-hint">JPG, PNG, WebP · Up to 50 MB per image</span>
+          </div>
+        </div>
+
+        <!-- STATE: File list -->
+        <div id="state-files" hidden>
+
+          <!-- Controls strip -->
+          <div class="controls-strip" role="group" aria-label="Compression settings">
+            <div class="ctrl-group">
+              <span class="ctrl-label">Quality</span>
+              <div class="ctrl-row">
+                <input type="range" id="input-quality" class="quality-slider"
+                       min="1" max="100" value="82" aria-label="Compression quality" />
+                <span class="quality-value" id="quality-value">82%</span>
+              </div>
+            </div>
+            <div class="ctrl-group" style="max-width:200px">
+              <span class="ctrl-label">Output Format</span>
+              <select id="select-format" class="format-select" aria-label="Output format">
+                <option value="same">Same as original</option>
+                <option value="jpeg">JPG — smaller, no transparency</option>
+                <option value="webp">WebP — best compression</option>
+                <option value="png">PNG — lossless</option>
+              </select>
+            </div>
+            <div>
+              <button class="btn btn-primary" id="btn-compress-all" type="button">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="8 17 12 21 16 17"/>
+                  <line x1="12" y1="12" x2="12" y2="21"/>
+                  <path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/>
+                </svg>
+                Compress All
+              </button>
+            </div>
+          </div>
+
+          <!-- Files header -->
+          <div class="files-header">
+            <span class="files-header-title">
+              Images
+              <span id="file-count-badge" class="badge badge--accent" style="margin-left:var(--s2)">0</span>
+            </span>
+            <span style="font-size:var(--text-xs);color:var(--text-muted)">Settings apply to all images</span>
+          </div>
+
+          <!-- File list -->
+          <div class="file-list" id="file-list" role="list" aria-label="Images to compress"></div>
+
+          <!-- Add more -->
+          <div class="add-more-zone" id="add-more-zone" role="button" aria-label="Add more images">
+            <input type="file" id="add-more-input" accept="image/jpeg,image/png,image/webp" multiple aria-label="Add more images" />
+            + Add more images
+          </div>
+
+          <!-- Footer -->
+          <div class="list-footer">
+            <div class="list-summary" id="list-summary" aria-live="polite">0 images</div>
+            <div class="list-actions">
+              <button class="btn btn-ghost btn-sm" id="btn-clear-all" type="button">Clear all</button>
+              <button class="btn btn-secondary" id="btn-download-all" type="button" disabled>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Download All
+              </button>
+            </div>
+          </div>
+
+        </div><!-- /state-files -->
+
+      </div><!-- /tool-card -->
+
+      <!-- ── How it works ── -->
+      <section class="section--sm" aria-labelledby="how-heading">
+        <p class="section-label">Simple process</p>
+        <h2 class="section-heading fade-in" id="how-heading">How it works</h2>
+        <div class="steps">
+          <div class="step glass-card fade-in">
+            <div class="step-number" aria-hidden="true">1</div>
+            <h3>Drop your images</h3>
+            <p>Upload one or multiple JPG, PNG, or WebP images. Everything stays on your device — nothing is sent to a server.</p>
+          </div>
+          <div class="step glass-card fade-in">
+            <div class="step-number" aria-hidden="true">2</div>
+            <h3>Set quality &amp; format</h3>
+            <p>Adjust the quality slider and choose an output format. Compress All re-processes every image instantly with the current settings.</p>
+          </div>
+          <div class="step glass-card fade-in">
+            <div class="step-number" aria-hidden="true">3</div>
+            <h3>Download</h3>
+            <p>Download files individually or use Download All to get every compressed image in one go.</p>
+          </div>
+        </div>
+      </section>
+
+      <hr class="divider" />
+
+      <!-- ── FAQ ── -->
+      <section class="section--sm" aria-labelledby="faq-heading">
+        <p class="section-label">Questions</p>
+        <h2 class="section-heading fade-in" id="faq-heading">Frequently asked questions</h2>
+        <div class="faq-list mt-4">
+
+          <details class="faq-item fade-in">
+            <summary class="faq-question">How much can I compress an image without losing quality?</summary>
+            <div class="faq-answer">
+              <p>For JPEG and WebP, a quality of 80–85% typically reduces file size by 60–80% with no visible difference to the eye. Below 70%, compression artifacts become noticeable in smooth gradients and fine details.</p>
+              <p>PNG compression is lossless — file size reduction is smaller (typically 5–20%) since no pixel data is discarded. To meaningfully reduce a PNG, convert it to JPEG or WebP, or use Resize Image to reduce its dimensions.</p>
+            </div>
+          </details>
+
+          <details class="faq-item fade-in">
+            <summary class="faq-question">Will my image be uploaded to a server?</summary>
+            <div class="faq-answer">
+              <p>No. Compression runs entirely in your browser using the Canvas API — a built-in browser technology. Your images are never transmitted to LiteFile or any third party.</p>
+              <p>This also means the tool works fully offline once the page has loaded.</p>
+            </div>
+          </details>
+
+          <details class="faq-item fade-in">
+            <summary class="faq-question">Can I compress multiple images at once?</summary>
+            <div class="faq-answer">
+              <p>Yes. Drop or select multiple images at once and LiteFile will compress them all with the same quality and format settings. Download them individually or use Download All.</p>
+            </div>
+          </details>
+
+          <details class="faq-item fade-in">
+            <summary class="faq-question">Why does compressing a PNG not reduce its size much?</summary>
+            <div class="faq-answer">
+              <p>PNG uses lossless compression — every pixel is stored exactly, so the only way to meaningfully reduce size is to reduce dimensions or switch to a lossy format.</p>
+              <p>If your image has transparency you need to preserve, keep it as PNG. Otherwise, convert to JPEG or WebP via the output format selector to get a much smaller file.</p>
+            </div>
+          </details>
+
+          <details class="faq-item fade-in">
+            <summary class="faq-question">What is the difference between compressing as JPG versus WebP?</summary>
+            <div class="faq-answer">
+              <p>WebP typically produces files 25–35% smaller than JPEG at the same visual quality. Both are lossy and do not support transparency.</p>
+              <p>WebP is supported by all modern browsers but may not open in older software. JPEG is universally compatible. For web use, WebP is the better choice; for email attachments or older software, stick with JPEG.</p>
+            </div>
+          </details>
+
+        </div>
+      </section>
+
+      <hr class="divider" />
+
+      <!-- ── Related tools ── -->
+      <section class="section--sm" aria-labelledby="related-heading">
+        <p class="section-label">Related tools</p>
+        <h2 class="section-heading fade-in" id="related-heading">Related tools</h2>
+        <div class="related-grid">
+          <a href="/resize-image" class="glass-card tool-card fade-in" aria-label="Resize Image tool">
+            <div class="tool-card-label">Image</div>
+            <h3>Resize Image</h3>
+            <p>Reduce dimensions to shrink file size further — or resize to exact pixel dimensions for a specific platform.</p>
+            <div class="tool-card-arrow" aria-hidden="true">→</div>
+          </a>
+          <a href="/remove-background" class="glass-card tool-card fade-in" aria-label="Remove Background tool">
+            <div class="tool-card-label">AI</div>
+            <h3>Remove Background</h3>
+            <p>Cut out the background from any image with AI — then compress the result here before uploading.</p>
+            <div class="tool-card-arrow" aria-hidden="true">→</div>
+          </a>
+        </div>
+      </section>
+
+    </div><!-- /tool-wrap -->
+  </div><!-- /container -->
+</main>
+
+<div id="footer-slot"></div>
+
+<script src="assets/utils.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  /* ── State ── */
+  const items = [];   // { id, file, originalBlob, compressedBlob, ext, status }
+  let nextId  = 0;
+  let compressing = false;
+
+  /* ── DOM refs ── */
+  const states = {
+    upload: document.getElementById('state-upload'),
+    files:  document.getElementById('state-files'),
+  };
+
+  const inputQuality  = document.getElementById('input-quality');
+  const qualityValue  = document.getElementById('quality-value');
+  const selectFormat  = document.getElementById('select-format');
+  const fileListEl    = document.getElementById('file-list');
+  const listSummary   = document.getElementById('list-summary');
+  const fileCountBadge = document.getElementById('file-count-badge');
+  const btnCompressAll = document.getElementById('btn-compress-all');
+  const btnDownloadAll = document.getElementById('btn-download-all');
+
+  /* ── Inject icon ── */
+  document.getElementById('upload-icon-slot').innerHTML = Icons.upload();
+
+  /* ── setState ── */
+  function setState(name) {
+    Object.entries(states).forEach(([k, el]) => { el.hidden = k !== name; });
+  }
+
+  /* ── Controls ── */
+  inputQuality.addEventListener('input', () => {
+    qualityValue.textContent = inputQuality.value + '%';
+  });
+
+  /* ── Drop zone (initial) ── */
+  new FileDropZone('#upload-zone', {
+    accept:   ['image/jpeg', 'image/png', 'image/webp'],
+    maxSize:  50 * 1024 * 1024,
+    multiple: true,
+    onFile:   addFile,
+  });
+
+  document.getElementById('file-input').addEventListener('change', (e) => {
+    Array.from(e.target.files).forEach(f => addFile(f));
+    e.target.value = '';
+  });
+
+  /* ── Add-more zone ── */
+  document.getElementById('add-more-input').addEventListener('change', (e) => {
+    Array.from(e.target.files).forEach(f => addFile(f));
+    e.target.value = '';
+  });
+
+  const addMoreZone = document.getElementById('add-more-zone');
+  addMoreZone.addEventListener('dragover',  e => { e.preventDefault(); addMoreZone.classList.add('drag-over'); });
+  addMoreZone.addEventListener('dragleave', e => { if (!addMoreZone.contains(e.relatedTarget)) addMoreZone.classList.remove('drag-over'); });
+  addMoreZone.addEventListener('drop', e => {
+    e.preventDefault();
+    addMoreZone.classList.remove('drag-over');
+    Array.from(e.dataTransfer.files)
+      .filter(f => ['image/jpeg','image/png','image/webp'].includes(f.type))
+      .forEach(f => addFile(f));
+  });
+
+  /* ── Add a file ── */
+  function addFile(file) {
+    const id = nextId++;
+    items.push({ id, file, originalBlob: file, compressedBlob: null, status: 'pending' });
+    setState('files');
+    renderList();
+    // Auto-compress after a short delay so multiple drops batch nicely
+    scheduleCompressAll();
+  }
+
+  let compressTimer = null;
+  function scheduleCompressAll() {
+    clearTimeout(compressTimer);
+    compressTimer = setTimeout(compressAll, 400);
+  }
+
+  /* ── Compress All ── */
+  btnCompressAll.addEventListener('click', compressAll);
+
+  async function compressAll() {
+    if (compressing) return;
+    compressing = true;
+    btnCompressAll.disabled = true;
+
+    const quality = parseInt(inputQuality.value, 10) / 100;
+    const fmtPref = selectFormat.value; // 'same' | 'jpeg' | 'webp' | 'png'
+
+    for (const item of items) {
+      item.status = 'compressing';
+      renderItem(item);
+      try {
+        item.compressedBlob = await compressImage(item.file, quality, fmtPref);
+        item.status = 'done';
+      } catch {
+        item.compressedBlob = null;
+        item.status = 'error';
+      }
+      renderItem(item);
+    }
+
+    compressing = false;
+    btnCompressAll.disabled = false;
+    updateSummary();
+    updateDownloadAll();
+  }
+
+  /* ── Compress a single image via Canvas ── */
+  function compressImage(file, quality, fmtPref) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width  = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+          const ctx = canvas.getContext('2d');
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+
+          // For PNG output fill transparent regions with white only if converting to JPEG
+          const outFmt = resolveFormat(file.type, fmtPref);
+          if (outFmt === 'image/jpeg') {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+          }
+
+          ctx.drawImage(img, 0, 0);
+          const q = outFmt === 'image/png' ? undefined : quality;
+          canvas.toBlob(blob => {
+            if (blob) resolve(blob);
+            else reject(new Error('canvas.toBlob returned null'));
+          }, outFmt, q);
+        };
+        img.onerror = reject;
+        img.src = e.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  /* ── Resolve output MIME type ── */
+  function resolveFormat(originalMime, pref) {
+    if (pref === 'same') return originalMime === 'image/png' ? 'image/png' : originalMime;
+    if (pref === 'jpeg') return 'image/jpeg';
+    if (pref === 'webp') return 'image/webp';
+    if (pref === 'png')  return 'image/png';
+    return originalMime;
+  }
+
+  function mimeToExt(mime) {
+    if (mime === 'image/jpeg') return 'jpg';
+    if (mime === 'image/webp') return 'webp';
+    return 'png';
+  }
+
+  /* ── Render full list ── */
+  function renderList() {
+    fileListEl.innerHTML = '';
+    items.forEach(item => fileListEl.appendChild(createItemEl(item)));
+    fileCountBadge.textContent = items.length;
+    updateSummary();
+    updateDownloadAll();
+  }
+
+  /* ── Create item element ── */
+  function createItemEl(item) {
+    const div = document.createElement('div');
+    div.className = 'file-item';
+    div.dataset.id = item.id;
+    div.setAttribute('role', 'listitem');
+    fillItemEl(div, item);
+    return div;
+  }
+
+  /* ── Update a single item in the DOM ── */
+  function renderItem(item) {
+    const el = fileListEl.querySelector(`[data-id="${item.id}"]`);
+    if (el) fillItemEl(el, item);
+  }
+
+  function fillItemEl(el, item) {
+    const saving = item.compressedBlob
+      ? Math.max(0, Math.round((1 - item.compressedBlob.size / item.file.size) * 100))
+      : null;
+
+    const fmtPref = selectFormat.value;
+    const outMime = resolveFormat(item.file.type, fmtPref);
+    const ext     = mimeToExt(outMime);
+
+    let metaHtml = `${formatBytes(item.file.size)}`;
+    if (item.status === 'done' && item.compressedBlob) {
+      metaHtml += ` → <strong>${formatBytes(item.compressedBlob.size)}</strong>`;
+      if (saving > 0) metaHtml += ` <span class="file-item-saving">−${saving}%</span>`;
+    } else if (item.status === 'error') {
+      metaHtml += ` <span style="color:var(--error)">compression failed</span>`;
+    }
+
+    let statusHtml = '';
+    if (item.status === 'compressing') {
+      statusHtml = `<div class="spinner" style="width:18px;height:18px;border-width:2px" role="status" aria-label="Compressing"></div>`;
+    } else if (item.status === 'done') {
+      statusHtml = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-label="Done"><polyline points="20 6 9 17 4 12"/></svg>`;
+    } else if (item.status === 'error') {
+      statusHtml = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--error)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-label="Error"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+    }
+
+    const dlDisabled = item.status !== 'done' || !item.compressedBlob ? 'disabled' : '';
+    const baseName   = item.file.name.replace(/\.[^.]+$/, '');
+
+    el.className = `file-item${item.status === 'done' ? ' done' : item.status === 'error' ? ' errored' : ''}`;
+    el.innerHTML = `
+      <img class="file-item-thumb" src="" alt="${escHtml(item.file.name)}" aria-hidden="true" />
+      <div class="file-item-info">
+        <div class="file-item-name" title="${escHtml(item.file.name)}">${escHtml(item.file.name)}</div>
+        <div class="file-item-meta">${metaHtml}</div>
+      </div>
+      <div class="file-item-status" aria-hidden="true">${statusHtml}</div>
+      <button class="file-item-dl" ${dlDisabled}
+              aria-label="Download ${escHtml(baseName + '-compressed.' + ext)}"
+              title="Download compressed image" type="button">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+      </button>`;
+
+    // Thumbnail
+    const thumb = el.querySelector('.file-item-thumb');
+    if (item.compressedBlob) {
+      thumb.src = URL.createObjectURL(item.compressedBlob);
+    } else {
+      const reader = new FileReader();
+      reader.onload = e2 => { thumb.src = e2.target.result; };
+      reader.readAsDataURL(item.file);
+    }
+
+    // Download button
+    el.querySelector('.file-item-dl').addEventListener('click', () => {
+      if (!item.compressedBlob) return;
+      const name = `${baseName}-compressed.${ext}`;
+      Downloader.download(item.compressedBlob, name);
+      Toaster.success(`Downloading ${name}`);
+    });
+  }
+
+  /* ── Summary ── */
+  function updateSummary() {
+    const total   = items.length;
+    const done    = items.filter(i => i.status === 'done').length;
+    const origBytes = items.reduce((s, i) => s + i.file.size, 0);
+    const compBytes = items.filter(i => i.compressedBlob).reduce((s, i) => s + i.compressedBlob.size, 0);
+    const saving    = origBytes > 0 && compBytes > 0
+      ? Math.max(0, Math.round((1 - compBytes / origBytes) * 100))
+      : null;
+
+    let html = `<strong>${total}</strong> image${total !== 1 ? 's' : ''}`;
+    if (done > 0) {
+      html += ` · ${done} compressed`;
+      if (saving !== null && saving > 0) html += ` · <span class="saving">−${saving}% total</span>`;
+    }
+    listSummary.innerHTML = html;
+    fileCountBadge.textContent = total;
+  }
+
+  /* ── Download All ── */
+  function updateDownloadAll() {
+    const ready = items.filter(i => i.status === 'done' && i.compressedBlob);
+    btnDownloadAll.disabled = ready.length === 0;
+    btnDownloadAll.querySelector('span') && (btnDownloadAll.querySelector('span').textContent = `Download All (${ready.length})`);
+  }
+
+  btnDownloadAll.addEventListener('click', () => {
+    const fmtPref = selectFormat.value;
+    const ready   = items.filter(i => i.status === 'done' && i.compressedBlob);
+    if (!ready.length) return;
+
+    let downloaded = 0;
+    ready.forEach((item, idx) => {
+      setTimeout(() => {
+        const outMime = resolveFormat(item.file.type, fmtPref);
+        const ext     = mimeToExt(outMime);
+        const base    = item.file.name.replace(/\.[^.]+$/, '');
+        Downloader.download(item.compressedBlob, `${base}-compressed.${ext}`);
+        if (idx === ready.length - 1) {
+          Toaster.success(`Downloading ${ready.length} compressed image${ready.length !== 1 ? 's' : ''}`);
+        }
+      }, idx * 150);
+    });
+  });
+
+  /* ── Clear All ── */
+  document.getElementById('btn-clear-all').addEventListener('click', () => {
+    items.length = 0;
+    setState('upload');
+  });
+
+  /* ── Helpers ── */
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+})();
+</script>
+</body>
+</html>

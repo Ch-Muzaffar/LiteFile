@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Compress PDF Online Free — Reduce PDF File Size | LiteFile</title>
+  <meta name="description" content="Compress PDF files online for free. Reduce PDF file size instantly — 100% in your browser, no upload, no account needed." />
+  <link rel="canonical" href="https://litefile.cloud/compress-pdf" />
+
+  <meta property="og:title"       content="Compress PDF Online Free — Reduce PDF File Size | LiteFile" />
+  <meta property="og:description" content="Reduce PDF file size in seconds. Compress PDFs online — 100% in your browser, nothing uploaded, no account required." />
+  <meta property="og:url"         content="https://litefile.cloud/compress-pdf" />
+  <meta property="og:type"        content="website" />
+  <meta property="og:image"       content="https://litefile.cloud/assets/og/compress-pdf.png" />
+  <meta name="twitter:card"       content="summary_large_image" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Why is my compressed PDF larger than the original?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "This tool compresses PDFs by rasterizing each page into a JPEG image and rebuilding the document. It works well for image-heavy PDFs and scanned documents, but text-based PDFs (Word exports, spreadsheets, presentations) may end up larger because text is already extremely compact in its native vector format. If the output is larger, LiteFile will tell you and offer the original file unchanged."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How much can I reduce a PDF file size?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "For PDFs containing large uncompressed images or high-resolution scans, compression can reduce file size by 60–80%. For mixed-content PDFs (text with embedded images), reductions of 20–50% are typical at the default quality setting. Text-only PDFs may see little or no reduction."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does compressing a PDF reduce visual quality?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "At the default quality of 75%, the visual difference is minimal for most documents viewed on screen. Text may appear slightly softer compared to a native vector PDF because it has been rasterized into pixels. Lower quality settings create smaller files but make text less sharp. Use 85–95% quality if you need text to remain crisp, for example in documents that will be printed."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What types of PDFs benefit most from compression?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The best candidates are: scanned documents (photographed pages saved as PDFs), PDFs with embedded high-resolution images, files exported from Adobe Illustrator or InDesign, and image-heavy reports or brochures. PDFs created from Word, Excel, or Google Docs with mainly text benefit least from this approach."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I compress a password-protected PDF?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. Password-protected PDFs cannot be opened or processed by browser-based tools. Remove the password protection from the PDF first, then compress it with LiteFile."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <link rel="stylesheet" href="assets/style.css" />
+  <style>
+    .tool-wrap { max-width: 760px; margin: 0 auto; }
+
+    /* ── Settings row ── */
+    .settings-row {
+      display: flex;
+      gap: var(--s5);
+      align-items: flex-end;
+      padding: var(--s4) var(--s5);
+      background: var(--bg-elevated);
+      border-radius: var(--r-md);
+      margin-bottom: var(--s4);
+      flex-wrap: wrap;
+    }
+
+    .setting-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--s2);
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .setting-label {
+      font-size: var(--text-xs);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-muted);
+    }
+
+    .quality-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .quality-value {
+      font-size: var(--text-xs);
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .quality-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 4px;
+      background: var(--bg-base);
+      border-radius: var(--r-full);
+      outline: none;
+      cursor: pointer;
+      border: 1px solid var(--glass-border);
+    }
+
+    .quality-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      box-shadow: 0 0 0 3px var(--accent-subtle), 0 2px 4px rgba(0,0,0,0.3);
+      transition: box-shadow var(--t) var(--ease);
+    }
+
+    .quality-slider::-webkit-slider-thumb:hover {
+      box-shadow: 0 0 0 5px var(--accent-subtle), 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .quality-slider::-moz-range-thumb {
+      width: 18px; height: 18px;
+      border: none; border-radius: 50%;
+      background: var(--accent); cursor: pointer;
+    }
+
+    .quality-hint {
+      display: flex;
+      justify-content: space-between;
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+    }
+
+    /* ── PDF caveat notice ── */
+    .pdf-caveat {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--s2);
+      padding: var(--s3) var(--s4);
+      background: rgba(99, 102, 241, 0.07);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: var(--r-sm);
+      font-size: var(--text-xs);
+      color: var(--text-secondary);
+      margin-top: var(--s4);
+      line-height: 1.5;
+    }
+
+    .pdf-caveat svg { flex-shrink: 0; margin-top: 1px; color: var(--accent); }
+
+    /* ── Processing state ── */
+    .state-center {
+      text-align: center;
+      padding: var(--s8) var(--s5);
+    }
+
+    .state-center .spinner {
+      width: 36px; height: 36px; border-width: 3px;
+      margin: 0 auto var(--s5);
+    }
+
+    .state-title { font-size: var(--text-md); font-weight: 600; margin-bottom: var(--s2); }
+    .state-sub   { font-size: var(--text-sm); color: var(--text-muted); margin-bottom: var(--s5); }
+
+    /* ── Result state ── */
+    .result-stat-row {
+      display: flex;
+      gap: var(--s4);
+      margin-bottom: var(--s5);
+      flex-wrap: wrap;
+    }
+
+    .result-stat {
+      text-align: center;
+      flex: 1;
+      min-width: 90px;
+      padding: var(--s3) var(--s4);
+      background: var(--bg-elevated);
+      border-radius: var(--r-md);
+    }
+
+    .result-stat-value {
+      font-size: var(--text-xl);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .result-stat-value.reduction-good { color: var(--success); }
+    .result-stat-value.reduction-bad  { color: var(--warning); }
+
+    .result-stat-label {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .result-actions {
+      display: flex;
+      gap: var(--s3);
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      margin-top: var(--s5);
+    }
+
+    /* Larger-than-original warning */
+    .size-warning {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--s3);
+      padding: var(--s3) var(--s4);
+      background: var(--warning-subtle);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      border-radius: var(--r-sm);
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      margin-bottom: var(--s5);
+      line-height: 1.5;
+    }
+
+    .size-warning svg { flex-shrink: 0; margin-top: 2px; color: var(--warning); }
+
+    /* ── Error state ── */
+    .error-inner {
+      text-align: center;
+      padding: var(--s7) var(--s5);
+    }
+
+    .error-icon {
+      width: 48px; height: 48px;
+      background: var(--error-subtle);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto var(--s4); color: var(--error);
+    }
+
+    /* ── Related grid ── */
+    .related-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--s4);
+      margin-top: var(--s5);
+    }
+
+    @media (max-width: 600px) {
+      .settings-row   { flex-direction: column; gap: var(--s4); }
+      .result-actions { flex-direction: column; }
+      .related-grid   { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="nav-slot"></div>
+
+<main>
+
+  <!-- ── Hero ── -->
+  <section class="hero hero--tool" aria-label="Tool introduction">
+    <div class="container">
+      <h1>Compress PDF Online, Free</h1>
+      <p class="hero-tagline">Reduce PDF file size in seconds. Works best on image-heavy PDFs and scanned documents — 100% in your browser, nothing uploaded to any server.</p>
+      <div class="badge-row" style="justify-content:center">
+        <span class="badge">No upload</span>
+        <span class="badge">100% free</span>
+        <span class="badge badge--accent">Instant results</span>
+        <span class="badge">No signup</span>
+        <span class="badge">Private</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="container">
+    <div class="tool-wrap">
+
+      <!-- ── Tool Card ── -->
+      <div class="glass-card" style="padding:var(--s6)" role="region" aria-label="Compress PDF tool">
+
+        <!-- STATE: Upload -->
+        <div id="state-upload">
+
+          <!-- Settings -->
+          <div class="settings-row" role="group" aria-label="Compression settings">
+            <div class="setting-group">
+              <div class="quality-header">
+                <span class="setting-label">Image quality</span>
+                <span class="quality-value" id="quality-display">75%</span>
+              </div>
+              <input type="range" id="quality-slider" min="40" max="95" value="75"
+                     class="quality-slider" aria-label="Compression quality"
+                     aria-valuemin="40" aria-valuemax="95" aria-valuenow="75" />
+              <div class="quality-hint">
+                <span>Smaller file</span>
+                <span>Better quality</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Upload zone -->
+          <div class="upload-zone" id="upload-zone" role="button" aria-label="Upload PDF file to compress">
+            <input type="file" id="file-input" accept="application/pdf,.pdf" aria-label="Choose a PDF file" />
+            <div id="upload-icon-slot" class="upload-icon" aria-hidden="true"></div>
+            <h3>Drop your PDF here</h3>
+            <p>or click to browse</p>
+            <span class="upload-hint">PDF files only · No file size limit</span>
+          </div>
+
+          <!-- Caveat notice -->
+          <div class="pdf-caveat" role="note" aria-label="Compatibility note">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span><strong>Works best on image-heavy PDFs and scanned documents.</strong> PDFs created from text documents (Word, Google Docs) may not shrink — their text is already very compact in vector format.</span>
+          </div>
+
+        </div>
+
+        <!-- STATE: Processing -->
+        <div id="state-processing" hidden>
+          <div class="state-center">
+            <div class="spinner" role="status" aria-label="Compressing PDF"></div>
+            <div class="state-title" id="processing-title">Compressing PDF…</div>
+            <div class="state-sub"  id="processing-sub">Loading tools</div>
+            <div class="progress-wrap" style="max-width:480px;margin:0 auto" aria-live="polite">
+              <div class="progress-label">
+                <span class="progress-label-text" id="progress-text"></span>
+                <span class="progress-pct" id="progress-pct"></span>
+              </div>
+              <div class="progress-track">
+                <div class="progress-fill processing" id="progress-fill" style="width:4%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STATE: Result -->
+        <div id="state-result" hidden>
+
+          <!-- Larger-than-original warning -->
+          <div id="size-warning" hidden class="size-warning" role="alert">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <div>
+              <strong style="color:var(--warning)">Compressed file is larger than the original.</strong><br />
+              This PDF appears to contain mostly text or vector content, which is already very compact. The download below is your original file — nothing was changed.
+            </div>
+          </div>
+
+          <!-- Success notice -->
+          <div id="size-success" class="result-box" style="margin-bottom:var(--s5)">
+            <div>
+              <div style="font-size:var(--text-base);font-weight:600;color:var(--success);margin-bottom:4px">Compressed successfully</div>
+              <div style="font-size:var(--text-sm);color:var(--text-secondary)" id="result-summary-text">Your PDF has been reduced in size.</div>
+            </div>
+            <span class="badge badge--success">Ready</span>
+          </div>
+
+          <div class="result-stat-row">
+            <div class="result-stat">
+              <div class="result-stat-value" id="result-original-size">—</div>
+              <div class="result-stat-label">Original size</div>
+            </div>
+            <div class="result-stat">
+              <div class="result-stat-value" id="result-compressed-size">—</div>
+              <div class="result-stat-label">Compressed size</div>
+            </div>
+            <div class="result-stat">
+              <div class="result-stat-value" id="result-reduction">—</div>
+              <div class="result-stat-label">Size change</div>
+            </div>
+            <div class="result-stat">
+              <div class="result-stat-value" id="result-pages">—</div>
+              <div class="result-stat-label">Pages</div>
+            </div>
+          </div>
+
+          <div class="result-actions">
+            <button class="btn btn-ghost" id="btn-compress-more">Compress another PDF</button>
+            <button class="btn btn-primary btn-lg" id="btn-download">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download PDF
+            </button>
+          </div>
+
+        </div>
+
+        <!-- STATE: Error -->
+        <div id="state-error" hidden>
+          <div class="error-inner">
+            <div class="error-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div class="state-title text-error">Compression failed</div>
+            <p class="state-sub mt-2" id="error-message">The file could not be processed. It may be password-protected or corrupted.</p>
+            <button class="btn btn-secondary mt-4" id="btn-retry">Try another file</button>
+          </div>
+        </div>
+
+      </div><!-- /tool-card -->
+
+      <!-- ── How it works ── -->
+      <section class="section--sm" aria-labelledby="how-heading">
+        <p style="font-size:var(--text-xs);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent);margin-bottom:var(--s3)">Simple process</p>
+        <h2 class="section-heading fade-in" id="how-heading">How it works</h2>
+        <div class="steps">
+          <div class="step glass-card fade-in">
+            <div class="step-number" aria-hidden="true">1</div>
+            <h3>Drop your PDF</h3>
+            <p>Upload the PDF you want to reduce. Nothing leaves your device — all processing happens locally in your browser.</p>
+          </div>
+          <div class="step glass-card fade-in">
+            <div class="step-number" aria-hidden="true">2</div>
+            <h3>Choose quality</h3>
+            <p>Adjust the slider to balance file size and visual fidelity. 75% is a strong starting point for most documents.</p>
+          </div>
+          <div class="step glass-card fade-in">
+            <div class="step-number" aria-hidden="true">3</div>
+            <h3>Download</h3>
+            <p>See the size reduction instantly and download your compressed PDF. Lower the quality slider further if you need it smaller still.</p>
+          </div>
+        </div>
+      </section>
+
+      <hr class="divider" />
+
+      <!-- ── FAQ ── -->
+      <section class="section--sm" aria-labelledby="faq-heading">
+        <p style="font-size:var(--text-xs);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent);margin-bottom:var(--s3)">Questions</p>
+        <h2 class="section-heading fade-in" id="faq-heading">Frequently asked questions</h2>
+        <div class="faq-list mt-4">
+
+          <details class="faq-item fade-in">
+            <summary class="faq-question">Why is my compressed PDF larger than the original?</summary>
+            <div class="faq-answer">
+              <p>This tool works by rasterizing every page into a JPEG image and rebuilding the PDF from those images. It's effective for image-heavy and scanned files, but counterproductive for text-based documents.</p>
+              <p>A PDF exported from Word or Google Docs stores text and fonts as compact vector data. Converting that to JPEG adds overhead — a 200 KB text document can easily become 800 KB. If this happens, LiteFile will warn you and offer the original file unchanged.</p>
+            </div>
+          </details>
+
+          <details class="faq-item fade-in">
+            <summary class="faq-question">How much can I reduce a PDF file size?</summary>
+            <div class="faq-answer">
+              <p>It depends entirely on the content. Scanned documents and PDFs with large embedded photos can shrink by 60–80%. Mixed documents (text with images) typically see 20–50% reductions at the 75% quality setting.</p>
+              <p>If you need to reduce a text-heavy PDF, consider re-exporting it from the original application at a lower quality, or using <a href="/split-pdf">Split PDF</a> to remove pages you don't need.</p>
+            </div>
+          </details>
+
+          <details class="faq-item fade-in">
+            <summary class="faq-question">Does compressing a PDF reduce visual quality?</summary>
+            <div class="faq-answer">
+              <p>Yes, slightly. At 75% quality (the default), the visual difference is minimal when viewing on screen. Text may appear slightly softer compared to a native vector PDF because it has been rasterized into pixels.</p>
+              <p>If the document will be printed or shared professionally, use 85–95% quality to keep text sharp. For email attachments and web uploads where file size matters more than perfect fidelity, 60–75% is typically fine.</p>
+            </div>
+          </details>
+
+          <details class="faq-item fade-in">
+            <summary class="faq-question">What types of PDFs benefit most from compression?</summary>
+            <div class="faq-answer">
+              <p>The best candidates are:</p>
+              <ul style="padding-left:var(--s4);display:flex;flex-direction:column;gap:var(--s1)">
+                <li>Scanned documents — photos of pages saved directly as PDFs</li>
+                <li>PDFs exported from Adobe Illustrator, InDesign, or Photoshop</li>
+                <li>Product catalogues, brochures, and portfolios with photography</li>
+                <li>PDFs with embedded high-resolution images or uncompressed graphics</li>
+              </ul>
+              <p>PDFs from Word, Excel, Google Docs, or code-generated output (invoices, reports) benefit the least.</p>
+            </div>
+          </details>
+
+          <details class="faq-item fade-in">
+            <summary class="faq-question">Can I compress a password-protected PDF?</summary>
+            <div class="faq-answer">
+              <p>No. Password-protected PDFs cannot be opened or rendered by browser-based tools. Remove the password protection from the file first — most PDF readers let you do this via File → Export or Print to PDF — then compress it with LiteFile.</p>
+            </div>
+          </details>
+
+        </div>
+      </section>
+
+      <hr class="divider" />
+
+      <!-- ── Related tools ── -->
+      <section class="section--sm" aria-labelledby="related-heading">
+        <p style="font-size:var(--text-xs);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent);margin-bottom:var(--s3)">Related tools</p>
+        <h2 class="section-heading fade-in" id="related-heading">You might also need</h2>
+        <div class="related-grid">
+          <a href="/merge-pdf" class="glass-card tool-card fade-in" aria-label="Merge PDF tool">
+            <div class="tool-card-label">PDF</div>
+            <h3>Merge PDF</h3>
+            <p>Combine multiple PDFs into a single document, then compress the result to reduce its size for sharing.</p>
+            <div class="tool-card-arrow" aria-hidden="true">→</div>
+          </a>
+          <a href="/split-pdf" class="glass-card tool-card fade-in" aria-label="Split PDF tool">
+            <div class="tool-card-label">PDF</div>
+            <h3>Split PDF</h3>
+            <p>Extract just the pages you need from a large PDF — a quick way to reduce size without re-compression.</p>
+            <div class="tool-card-arrow" aria-hidden="true">→</div>
+          </a>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</main>
+
+<div id="footer-slot"></div>
+
+<script src="assets/utils.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  /* ── CDN sources ── */
+  const PDFJS_CDN    = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';
+  const PDFJS_WORKER = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+  const PDFLIB_CDN   = 'https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js';
+
+  /* ── Render config ── */
+  // Pages are rendered at 1.5× scale (~108 DPI for A4), then embedded as JPEG.
+  // The PDF page dimensions stay at 1× (points), so the file viewer shows
+  // the correct page size while the JPEG raster determines sharpness.
+  const RENDER_SCALE = 1.5;
+
+  /* ── State ── */
+  let quality      = 0.75;
+  let resultBlob   = null;
+  let originalFile = null;
+  let pdfjsLoaded  = false;
+  let pdfLibLoaded = false;
+
+  /* ── DOM ── */
+  const states = {
+    upload:     document.getElementById('state-upload'),
+    processing: document.getElementById('state-processing'),
+    result:     document.getElementById('state-result'),
+    error:      document.getElementById('state-error'),
+  };
+
+  const progressFill   = document.getElementById('progress-fill');
+  const progressText   = document.getElementById('progress-text');
+  const progressPct    = document.getElementById('progress-pct');
+  const processingSub  = document.getElementById('processing-sub');
+  const processingTitle= document.getElementById('processing-title');
+  const errorMessage   = document.getElementById('error-message');
+  const sizeWarning    = document.getElementById('size-warning');
+  const sizeSuccess    = document.getElementById('size-success');
+
+  /* ── Init ── */
+  document.getElementById('upload-icon-slot').innerHTML = Icons.upload();
+
+  /* ── Set state ── */
+  function setState(name) {
+    Object.entries(states).forEach(([k, el]) => { el.hidden = k !== name; });
+  }
+
+  /* ── Quality slider ── */
+  const slider = document.getElementById('quality-slider');
+  slider.addEventListener('input', () => {
+    quality = parseInt(slider.value, 10) / 100;
+    document.getElementById('quality-display').textContent = slider.value + '%';
+    slider.setAttribute('aria-valuenow', slider.value);
+  });
+
+  /* ── Lazy loaders ── */
+  function loadScript(src) {
+    return new Promise((resolve, reject) => {
+      if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }
+      const s = document.createElement('script');
+      s.src = src;
+      s.onload = resolve;
+      s.onerror = () => reject(new Error('Failed to load: ' + src));
+      document.head.appendChild(s);
+    });
+  }
+
+  async function ensurePdfjs() {
+    if (pdfjsLoaded) return;
+    await loadScript(PDFJS_CDN);
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER;
+    pdfjsLoaded = true;
+  }
+
+  async function ensurePdfLib() {
+    if (pdfLibLoaded) return;
+    await loadScript(PDFLIB_CDN);
+    pdfLibLoaded = true;
+  }
+
+  /* ── Upload wiring ── */
+  document.getElementById('file-input').addEventListener('change', (e) => {
+    if (e.target.files[0]) handleFile(e.target.files[0]);
+    e.target.value = '';
+  });
+
+  const uploadZone = document.getElementById('upload-zone');
+  uploadZone.addEventListener('dragover',  (e) => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+  uploadZone.addEventListener('dragleave', (e) => { if (!uploadZone.contains(e.relatedTarget)) uploadZone.classList.remove('drag-over'); });
+  uploadZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadZone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+    if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+      Toaster.error('Please drop a PDF file.');
+      return;
+    }
+    handleFile(file);
+  });
+
+  /* ── Validate and kick off ── */
+  function handleFile(file) {
+    const isPDF = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+    if (!isPDF) { Toaster.error('Please select a PDF file.'); return; }
+    compress(file);
+  }
+
+  /* ── Progress helper ── */
+  function setProgress(done, total) {
+    const pct = total > 0 ? Math.round((done / total) * 100) : 4;
+    progressFill.style.width = Math.max(pct, 4) + '%';
+    progressText.textContent = total > 0 ? `Page ${done} of ${total}` : '';
+    progressPct.textContent  = total > 0 ? pct + '%' : '';
+  }
+
+  /* ── Main compression function ── */
+  async function compress(file) {
+    originalFile = file;
+    resultBlob   = null;
+
+    setState('processing');
+    processingTitle.textContent = 'Compressing PDF…';
+    processingSub.textContent   = 'Loading tools…';
+    progressFill.style.width    = '4%';
+    progressFill.className      = 'progress-fill processing';
+    progressText.textContent    = '';
+    progressPct.textContent     = '';
+
+    /* Load both libraries in parallel */
+    try {
+      await Promise.all([ensurePdfjs(), ensurePdfLib()]);
+    } catch {
+      setState('error');
+      errorMessage.textContent = 'Failed to load compression tools. Please check your internet connection and try again.';
+      return;
+    }
+
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+
+      /* ── Step 1: open with pdf.js ── */
+      processingSub.textContent = 'Opening PDF…';
+      const pdfTask  = window.pdfjsLib.getDocument({ data: new Uint8Array(arrayBuffer) });
+      const pdfDoc   = await pdfTask.promise;
+      const numPages = pdfDoc.numPages;
+
+      processingTitle.textContent = `Compressing ${numPages} page${numPages !== 1 ? 's' : ''}…`;
+
+      /* ── Step 2: render each page → JPEG bytes ── */
+      const pageImages = []; // { jpegBytes: Uint8Array, pdfW: number, pdfH: number }
+
+      for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+        setProgress(pageNum - 1, numPages);
+        processingSub.textContent = `Rendering page ${pageNum} of ${numPages}…`;
+
+        const page      = await pdfDoc.getPage(pageNum);
+        const vpNative  = page.getViewport({ scale: 1.0 });        // page size in PDF points
+        const vpRender  = page.getViewport({ scale: RENDER_SCALE });
+
+        const canvas    = document.createElement('canvas');
+        canvas.width    = Math.round(vpRender.width);
+        canvas.height   = Math.round(vpRender.height);
+        const ctx       = canvas.getContext('2d', { alpha: false });
+
+        // White background — JPEG has no alpha channel
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        await page.render({ canvasContext: ctx, viewport: vpRender }).promise;
+
+        const blob    = await new Promise(res => canvas.toBlob(res, 'image/jpeg', quality));
+        const buf     = await blob.arrayBuffer();
+
+        pageImages.push({
+          jpegBytes: new Uint8Array(buf),
+          pdfW: vpNative.width,
+          pdfH: vpNative.height,
+        });
+
+        // Yield to keep the UI responsive between heavy renders
+        await new Promise(res => setTimeout(res, 0));
+      }
+
+      setProgress(numPages, numPages);
+      processingSub.textContent = 'Building output PDF…';
+
+      /* ── Step 3: rebuild with pdf-lib ── */
+      const { PDFDocument } = window.PDFLib;
+      const newDoc = await PDFDocument.create();
+
+      for (const { jpegBytes, pdfW, pdfH } of pageImages) {
+        const img    = await newDoc.embedJpg(jpegBytes);
+        const newPage = newDoc.addPage([pdfW, pdfH]);
+        newPage.drawImage(img, { x: 0, y: 0, width: pdfW, height: pdfH });
+      }
+
+      const outputBytes = await newDoc.save();
+      const compressed  = new Blob([outputBytes], { type: 'application/pdf' });
+
+      progressFill.className = 'progress-fill done';
+
+      renderResult(file.name, file.size, compressed, numPages);
+      setState('result');
+
+    } catch (err) {
+      setState('error');
+      const msg = (err.message || '').toLowerCase();
+      if (msg.includes('password') || msg.includes('encrypt')) {
+        errorMessage.textContent = 'This PDF is password-protected. Remove the password first, then try again.';
+      } else if (msg.includes('invalid') || msg.includes('corrupt')) {
+        errorMessage.textContent = 'This file does not appear to be a valid PDF. Please try a different file.';
+      } else {
+        errorMessage.textContent = err.message || 'Failed to compress the PDF. Please try again with a different file.';
+      }
+    }
+  }
+
+  /* ── Render result ── */
+  function renderResult(fileName, origSize, compressed, numPages) {
+    const compSize    = compressed.size;
+    const isLarger    = compSize >= origSize;
+    const pctChange   = origSize > 0
+      ? Math.abs(((origSize - compSize) / origSize) * 100).toFixed(1)
+      : '0.0';
+
+    document.getElementById('result-original-size').textContent    = formatBytes(origSize);
+    document.getElementById('result-compressed-size').textContent  = formatBytes(compSize);
+    document.getElementById('result-pages').textContent             = numPages;
+
+    const reductionEl = document.getElementById('result-reduction');
+
+    if (isLarger) {
+      reductionEl.textContent = '+' + pctChange + '%';
+      reductionEl.className   = 'result-stat-value reduction-bad';
+      sizeWarning.hidden = false;
+      sizeSuccess.hidden = true;
+      // Download the original unchanged
+      resultBlob = originalFile;
+    } else {
+      reductionEl.textContent = '−' + pctChange + '%';
+      reductionEl.className   = 'result-stat-value reduction-good';
+      sizeWarning.hidden = true;
+      sizeSuccess.hidden = false;
+      const saved = formatBytes(origSize - compSize);
+      document.getElementById('result-summary-text').textContent =
+        `${saved} saved — ${pctChange}% smaller than the original.`;
+      resultBlob = compressed;
+    }
+
+    // Stash filename for the download button
+    const baseName = fileName.replace(/\.pdf$/i, '');
+    document.getElementById('btn-download').dataset.filename = baseName + '-compressed.pdf';
+  }
+
+  /* ── Download ── */
+  document.getElementById('btn-download').addEventListener('click', () => {
+    if (!resultBlob) return;
+    const filename = document.getElementById('btn-download').dataset.filename || 'litefile-compressed.pdf';
+    Downloader.download(resultBlob, filename);
+    Toaster.success('Downloading ' + filename);
+  });
+
+  /* ── Reset ── */
+  function resetTool() {
+    resultBlob   = null;
+    originalFile = null;
+    sizeWarning.hidden = true;
+    sizeSuccess.hidden = false;
+    progressFill.style.width = '4%';
+    progressFill.className   = 'progress-fill processing';
+    processingTitle.textContent = 'Compressing PDF…';
+    setState('upload');
+  }
+
+  document.getElementById('btn-compress-more').addEventListener('click', resetTool);
+  document.getElementById('btn-retry').addEventListener('click', resetTool);
+
+})();
+</script>
+</body>
+</html>

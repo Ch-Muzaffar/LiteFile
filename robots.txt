@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /404
+Disallow: /design-system
+Disallow: /assets/og/og-generate
+
+Sitemap: https://litefile.cloud/sitemap.xml

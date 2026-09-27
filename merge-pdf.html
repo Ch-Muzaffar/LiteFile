@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Merge PDF Files Online Free — Combine PDFs Instantly | LiteFile</title>
+  <meta name="description" content="Merge multiple PDF files into one online for free. Drag to reorder, combine instantly — 100% in your browser, no upload, no account needed." />
+  <link rel="canonical" href="https://litefile.cloud/merge-pdf" />
+
+  <meta property="og:title"       content="Merge PDF Files Online Free — Combine PDFs Instantly | LiteFile" />
+  <meta property="og:description" content="Combine multiple PDFs into one in seconds. Drag to reorder pages, merge instantly — 100% in your browser, nothing uploaded." />
+  <meta property="og:url"         content="https://litefile.cloud/merge-pdf" />
+  <meta property="og:type"        content="website" />
+  <meta property="og:image"       content="https://litefile.cloud/assets/og/merge-pdf.png" />
+  <meta name="twitter:card"       content="summary_large_image" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How many PDFs can I merge at once?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "There is no hard limit set by LiteFile. In practice, merging very large files (combined total over 200 MB) may be slow on older devices since all processing happens in your browser. For typical document PDFs, merging 10–20 files works smoothly."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I reorder the PDFs before merging?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. After adding your files, drag them into the order you want before clicking Merge. The merged PDF will follow the exact order shown in the list — first file at the top becomes the first pages of the merged document."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Will hyperlinks and bookmarks be preserved?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Internal hyperlinks within each PDF are preserved. Bookmarks and table-of-contents entries from the original files are not merged — only the page content and internal links are copied to the combined document."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is the merged PDF identical in quality to the originals?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. LiteFile copies pages directly without re-rendering or re-compressing them. Text stays crisp and selectable, images retain their original quality, and the file size of the merged PDF is roughly the sum of the originals."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I merge password-protected PDFs?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. Password-protected PDFs cannot be merged. Remove the password protection from the file first, then upload it to LiteFile."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <link rel="stylesheet" href="assets/style.css" />
+  <style>
+    .tool-wrap { max-width: 760px; margin: 0 auto; }
+
+    /* ── Upload state ── */
+    .upload-zone--pdf { padding: var(--s7) var(--s5); }
+
+    /* ── File list ── */
+    .files-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--s4);
+      flex-wrap: wrap;
+      gap: var(--s3);
+    }
+
+    .files-header-title {
+      font-size: var(--text-base);
+      font-weight: 600;
+    }
+
+    .pdf-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--s2);
+      margin-bottom: var(--s4);
+    }
+
+    .pdf-item {
+      display: flex;
+      align-items: center;
+      gap: var(--s3);
+      padding: var(--s3) var(--s4);
+      background: var(--bg-elevated);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--r-md);
+      transition: opacity var(--t) var(--ease), background var(--t) var(--ease),
+                  border-color var(--t) var(--ease), transform var(--t) var(--ease);
+    }
+
+    .pdf-item.dragging  { opacity: 0.35; transform: scale(0.98); }
+    .pdf-item.drag-over { border-color: var(--accent); background: var(--accent-subtle); }
+
+    .pdf-item-order {
+      font-size: var(--text-xs);
+      font-weight: 600;
+      color: var(--text-muted);
+      width: 18px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .pdf-item-drag {
+      cursor: grab;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      padding: 4px;
+      flex-shrink: 0;
+      border-radius: 4px;
+      transition: color var(--t) var(--ease), background var(--t) var(--ease);
+    }
+    .pdf-item-drag:hover { color: var(--text-secondary); background: var(--bg-glass); }
+    .pdf-item-drag:active { cursor: grabbing; }
+
+    .pdf-item-icon { color: #e84040; flex-shrink: 0; }
+
+    .pdf-item-info { flex: 1; min-width: 0; }
+
+    .pdf-item-name {
+      font-size: var(--text-sm);
+      font-weight: 500;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--text-primary);
+    }
+
+    .pdf-item-meta {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .pdf-item-pages { font-weight: 600; color: var(--text-secondary); }
+
+    .pdf-item-remove {
+      width: 28px; height: 28px;
+      border-radius: var(--r-sm);
+      color: var(--text-muted);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: color var(--t) var(--ease), background var(--t) var(--ease);
+    }
+    .pdf-item-remove:hover { color: var(--error); background: var(--error-subtle); }
+
+    /* ── Merge footer ── */
+    .merge-footer {
+      border-top: 1px solid var(--glass-border);
+      padding-top: var(--s4);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--s4);
+      flex-wrap: wrap;
+    }
+
+    .merge-summary {
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+    }
+
+    .merge-summary strong { color: var(--text-primary); }
+
+    .merge-actions { display: flex; gap: var(--s3); align-items: center; }
+
+    /* ── Add more drop zone (inline) ── */
+    .add-more-zone {
+      border: 2px dashed var(--glass-border);
+      border-radius: var(--r-md);
+      padding: var(--s4);
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+      margin-bottom: var(--s4);
+      transition: border-color var(--t) var(--ease), background var(--t) var(--ease);
+      font-size: var(--text-sm);
+      color: var(--text-muted);
+    }
+    .add-more-zone:hover,
+    .add-more-zone.drag-over {
+      border-color: var(--accent);
+      background: var(--accent-subtle);
+      color: var(--text-secondary);
+    }
+    .add-more-zone input[type="file"] {
+      position: absolute; inset: 0;
+      opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+
+    /* ── Processing state ── */
+    .state-center {
+      text-align: center;
+      padding: var(--s8) var(--s5);
+    }
+    .state-center .spinner {
+      width: 36px; height: 36px; border-width: 3px;
+      margin: 0 auto var(--s5);
+    }
+    .state-title  { font-size: var(--text-md); font-weight: 600; margin-bottom: var(--s2); }
+    .state-sub    { font-size: var(--text-sm); color: var(--text-muted); }
+
+    /* ── Result state ── */
+    .result-card-inner { padding: var(--s5); }
+
+    .result-stat-row {
+      display: flex;
+      gap: var(--s4);
+      margin-bottom: var(--s5);
+      flex-wrap: wrap;
+    }
+
+    .result-stat {
+      text-align: center;
+      flex: 1;
+      min-width: 80px;
+      padding: var(--s3);
+      background: var(--bg-elevated);
+      border-radius: var(--r-md);
+    }
+    .result-stat-value { font-size: var(--text-xl); font-weight: 600; letter-spacing: -0.01em; }
+    .result-stat-label { font-size: var(--text-xs); color: var(--text-muted); margin-top: 2px; }
+
+    .result-actions {
+      display: flex; gap: var(--s3);
+      flex-wrap: wrap; justify-content: flex-end;
+    }
+
+    /* ── Error state ── */
+    .error-inner {
+      text-align: center; padding: var(--s7) var(--s5);
+    }
+    .error-icon {
+      width: 48px; height: 48px;
+      background: var(--error-subtle); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto var(--s4); color: var(--error);
+    }
+
+    /* ── Related grid ── */
+    .related-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--s4);
+      margin-top: var(--s5);
+    }
+
+    @media (max-width: 600px) {
+      .merge-footer { flex-direction: column; align-items: stretch; }
+      .merge-actions { flex-direction: column; }
+      .result-actions { flex-direction: column; }
+      .related-grid { grid-template-columns: 1fr; }
+      .files-header { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="nav-slot"></div>
+
+<main>
+
+  <!-- ── Hero ── -->
+  <section class="hero hero--tool" aria-label="Tool introduction">
+    <div class="container">
+      <h1>Merge PDF Files Online, Free</h1>
+      <p class="hero-tagline">Combine multiple PDFs into one document in seconds. Drag to reorder files before merging — 100% in your browser, nothing uploaded, nothing stored.</p>
+      <div class="badge-row" style="justify-content:center">
+        <span class="badge">No upload</span>
+        <span class="badge">100% free</span>
+        <span class="badge">Drag to reorder</span>
+        <span class="badge badge--success">No quality loss</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="container">
+    <div class="tool-wrap">
+
+      <!-- ── Tool Card ── -->
+      <div class="glass-card" style="padding:var(--s6)" role="region" aria-label="Merge PDF tool">
+
+        <!-- STATE: Upload -->
+        <div id="state-upload">
+          <div class="upload-zone upload-zone--pdf" id="upload-zone" role="button" aria-label="Upload PDF files to merge">
+            <input type="file" id="file-input" accept="application/pdf,.pdf" multiple aria-label="Choose PDF files" />
+            <div id="upload-icon-slot" class="upload-icon" aria-hidden="true"></div>
+            <h3>Drop your PDF files here</h3>
+            <p>or click to browse — select multiple files at once</p>
+            <span class="upload-hint">PDF files only · No file size limit</span>
+          </div>
+        </div>
+
+        <!-- STATE: File list -->
+        <div id="state-files" hidden>
+          <div class="files-header">
+            <span class="files-header-title">Files to merge <span id="file-count-badge" class="badge badge--accent" style="margin-left:var(--s2)">0</span></span>
+            <span style="font-size:var(--text-xs);color:var(--text-muted)">Drag the handle ⠿ to reorder</span>
+          </div>
+
+          <div class="pdf-list" id="pdf-list" role="list" aria-label="PDF files to merge"></div>
+
+          <!-- Add more -->
+          <div class="add-more-zone" id="add-more-zone" role="button" aria-label="Add more PDF files">
+            <input type="file" id="add-more-input" accept="application/pdf,.pdf" multiple aria-label="Add more PDF files" />
+            + Add more PDFs
+          </div>
+
+          <!-- Merge footer -->
+          <div class="merge-footer">
+            <div class="merge-summary" id="merge-summary" aria-live="polite">0 files selected</div>
+            <div class="merge-actions">
+              <button class="btn btn-ghost btn-sm" id="btn-clear-all">Clear all</button>
+              <button class="btn btn-primary" id="btn-merge" disabled>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-2"/><rect x="10" y="2" width="12" height="14" rx="2"/></svg>
+                Merge PDFs
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- STATE: Processing -->
+        <div id="state-processing" hidden>
+          <div class="state-center">
+            <div class="spinner" role="status" aria-label="Merging PDFs"></div>
+            <div class="state-title" id="processing-title">Merging PDFs…</div>
+            <div class="state-sub" id="processing-sub">Combining your files — please wait</div>
+          </div>
+        </div>
+
+        <!-- STATE: Result -->
+        <div id="state-result" hidden>
+          <div class="result-card-inner">
+            <div class="result-box" style="margin-bottom:var(--s5)">
+              <div>
+                <div style="font-size:var(--text-base);font-weight:600;color:var(--success);margin-bottom:4px">Merged successfully</div>
+                <div style="font-size:var(--text-sm);color:var(--text-secondary)">Your files have been combined into a single PDF</div>
+              </div>
+              <span class="badge badge--success">Ready</span>
+            </div>
+
+            <div class="result-stat-row">
+              <div class="result-stat">
+                <div class="result-stat-value" id="result-files">—</div>
+                <div class="result-stat-label">Files merged</div>
+              </div>
+              <div class="result-stat">
+                <div class="result-stat-value" id="result-pages">—</div>
+                <div class="result-stat-label">Total pages</div>
+              </div>
+              <div class="result-stat">
+                <div class="result-stat-value" id="result-size">—</div>
+                <div class="result-stat-label">File size</div>
+              </div>
+            </div>
+
+            <div class="result-actions">
+              <button class="btn btn-ghost" id="btn-merge-more">Merge more files</button>
+              <button class="btn btn-primary btn-lg" id="btn-download">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Download merged PDF
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- STATE: Error -->
+        <div id="state-error" hidden>
+          <div class="error-inner">
+            <div class="error-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div class="state-title text-error">Merge failed</div>
+            <p class="state-sub mt-2" id="error-message">One or more files could not be processed.</p>
+            <button class="btn btn-secondary mt-4" id="btn-retry">Try again</button>
+          </div>
+        </div>
+
+      </div><!-- /tool-card -->
+
+      <!-- ── How it works ── -->
+      <section class="section--sm" aria-labelledby="how-heading">
+        <p class="section-label">Simple process</p>
+        <h2 class="section-heading fade-in" id="how-heading">How it works</h2>
+        <div class="steps">
+          <div class="step glass-card fade-in">
+            <div class="step-number" aria-hidden="true">1</div>
+            <h3>Upload your PDFs</h3>
+            <p>Drop multiple PDF files at once or add them one by one. Nothing is uploaded to any server.</p>
+          </div>
+          <div class="step glass-card fade-in">
+            <div class="step-number" aria-hidden="true">2</div>
+            <h3>Drag to reorder</h3>
+            <p>Arrange the files in the exact order you want them to appear in the merged document.</p>
+          </div>
+          <div class="step glass-card fade-in">
+            <div class="step-number" aria-hidden="true">3</div>
+            <h3>Download the result</h3>
+            <p>Click Merge and your combined PDF downloads instantly — no quality loss, no re-compression.</p>
+          </div>
+        </div>
+      </section>
+
+      <hr class="divider" />
+
+      <!-- ── FAQ ── -->
+      <section class="section--sm" aria-labelledby="faq-heading">
+        <p class="section-label">Questions</p>
+        <h2 class="section-heading fade-in" id="faq-heading">Frequently asked questions</h2>
+        <div class="faq-list mt-4">
+
+          <details class="faq-item fade-in">
+            <summary class="faq-question">How many PDFs can I merge at once?</summary>
+            <div class="faq-answer">
+              <p>There is no hard limit set by LiteFile. In practice, merging very large files (combined total over 200 MB) may be slow on older devices since all processing happens in your browser. For typical document PDFs, merging 10–20 files works smoothly.</p>
+            </div>
+          </details>
+
+          <details class="faq-item fade-in">
+            <summary class="faq-question">Can I reorder the PDFs before merging?</summary>
+            <div class="faq-answer">
+              <p>Yes. After adding your files, drag them into the order you want before clicking Merge. The merged PDF will follow the exact order shown in the list — the first file at the top becomes the first pages of the merged document.</p>
+            </div>
+          </details>
+
+          <details class="faq-item fade-in">
+            <summary class="faq-question">Will hyperlinks and bookmarks be preserved?</summary>
+            <div class="faq-answer">
+              <p>Internal hyperlinks within each PDF are preserved. Bookmarks and table-of-contents entries from the original files are not merged — only page content and internal links are copied to the combined document.</p>
+            </div>
+          </details>
+
+          <details class="faq-item fade-in">
+            <summary class="faq-question">Is the merged PDF identical in quality to the originals?</summary>
+            <div class="faq-answer">
+              <p>Yes. LiteFile copies pages directly without re-rendering or re-compressing them. Text stays crisp and selectable, images retain their original quality, and the file size of the merged PDF is roughly the combined size of the originals.</p>
+            </div>
+          </details>
+
+          <details class="faq-item fade-in">
+            <summary class="faq-question">Can I merge password-protected PDFs?</summary>
+            <div class="faq-answer">
+              <p>No. Password-protected PDFs cannot be merged. Remove the password protection from each file first, then upload them to LiteFile. Use <a href="/split-pdf">Split PDF</a> if you need to extract specific pages before merging.</p>
+            </div>
+          </details>
+
+        </div>
+      </section>
+
+      <hr class="divider" />
+
+      <!-- ── Related tools ── -->
+      <section class="section--sm" aria-labelledby="related-heading">
+        <p class="section-label">Related tools</p>
+        <h2 class="section-heading fade-in" id="related-heading">You might also need</h2>
+        <div class="related-grid">
+          <a href="/split-pdf" class="glass-card tool-card fade-in" aria-label="Split PDF tool">
+            <div class="tool-card-label">PDF</div>
+            <h3>Split PDF</h3>
+            <p>Extract pages or split a PDF into multiple files by custom page ranges — the reverse of merging.</p>
+            <div class="tool-card-arrow" aria-hidden="true">→</div>
+          </a>
+          <a href="/compress-pdf" class="glass-card tool-card fade-in" aria-label="Compress PDF tool">
+            <div class="tool-card-label">PDF</div>
+            <h3>Compress PDF</h3>
+            <p>Reduce the size of your merged PDF before sharing or uploading — works best on image-heavy documents.</p>
+            <div class="tool-card-arrow" aria-hidden="true">→</div>
+          </a>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</main>
+
+<div id="footer-slot"></div>
+
+<script src="assets/utils.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  /* ── State ── */
+  const fileList  = [];   // { id, file, name, size, pageCount }
+  let   nextId    = 0;
+  let   mergedBlob = null;
+  let   PDFLib    = null;
+  let   pdfLibLoading = false;
+
+  /* ── DOM ── */
+  const states = {
+    upload:     document.getElementById('state-upload'),
+    files:      document.getElementById('state-files'),
+    processing: document.getElementById('state-processing'),
+    result:     document.getElementById('state-result'),
+    error:      document.getElementById('state-error'),
+  };
+  const pdfListEl       = document.getElementById('pdf-list');
+  const mergeSummary    = document.getElementById('merge-summary');
+  const fileCountBadge  = document.getElementById('file-count-badge');
+  const btnMerge        = document.getElementById('btn-merge');
+  const processingTitle = document.getElementById('processing-title');
+  const processingSub   = document.getElementById('processing-sub');
+  const errorMessage    = document.getElementById('error-message');
+
+  /* ── Inject icon ── */
+  document.getElementById('upload-icon-slot').innerHTML = Icons.upload();
+
+  /* ── Render state ── */
+  function setState(name) {
+    Object.entries(states).forEach(([k, el]) => { el.hidden = k !== name; });
+  }
+
+  /* ── Lazy-load pdf-lib ── */
+  function ensurePdfLib() {
+    if (PDFLib) return Promise.resolve();
+    if (pdfLibLoading) return new Promise(resolve => {
+      const id = setInterval(() => { if (PDFLib) { clearInterval(id); resolve(); } }, 100);
+    });
+    pdfLibLoading = true;
+    return new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js';
+      s.onload = () => { PDFLib = window.PDFLib; resolve(); };
+      s.onerror = () => reject(new Error('Failed to load pdf-lib. Check your connection.'));
+      document.head.appendChild(s);
+    });
+  }
+
+  /* ── Add files ── */
+  function addFiles(newFiles) {
+    const pdfs = Array.from(newFiles).filter(f =>
+      f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf')
+    );
+
+    if (!pdfs.length) {
+      Toaster.error('Please select PDF files only.');
+      return;
+    }
+
+    pdfs.forEach(file => {
+      fileList.push({ id: nextId++, file, name: file.name, size: file.size, pageCount: null });
+    });
+
+    setState('files');
+    renderFileList();
+    loadPageCounts();
+  }
+
+  /* ── Load page counts in background ── */
+  async function loadPageCounts() {
+    try {
+      await ensurePdfLib();
+    } catch {
+      return; // If pdf-lib fails to load, page counts stay as "—"
+    }
+
+    for (const item of fileList) {
+      if (item.pageCount !== null) continue;
+      try {
+        const buf = await item.file.arrayBuffer();
+        const doc = await PDFLib.PDFDocument.load(buf, { ignoreEncryption: true });
+        item.pageCount = doc.getPageCount();
+        item.error = null;
+      } catch {
+        item.pageCount = 0;
+        item.error = 'May be password-protected';
+      }
+      renderFileList();
+    }
+  }
+
+  /* ── Render file list ── */
+  function renderFileList() {
+    pdfListEl.innerHTML = '';
+    fileList.forEach((item, idx) => {
+      pdfListEl.appendChild(createFileItem(item, idx));
+    });
+
+    const totalPages = fileList.reduce((s, f) => s + (f.pageCount || 0), 0);
+    const totalSize  = fileList.reduce((s, f) => s + f.size, 0);
+    const pageStr    = totalPages > 0 ? ` · <strong>${totalPages}</strong> pages` : '';
+    mergeSummary.innerHTML = `<strong>${fileList.length}</strong> file${fileList.length !== 1 ? 's' : ''}${pageStr} · ${formatBytes(totalSize)} total`;
+    fileCountBadge.textContent = fileList.length;
+
+    btnMerge.disabled = fileList.length < 2;
+    btnMerge.innerHTML = `
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M8 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-2"/>
+        <rect x="10" y="2" width="12" height="14" rx="2"/>
+      </svg>
+      Merge ${fileList.length} PDF${fileList.length !== 1 ? 's' : ''}`;
+  }
+
+  /* ── Create file item element ── */
+  let dragSrcIdx = null;
+
+  function createFileItem(item, idx) {
+    const div = document.createElement('div');
+    div.className = 'pdf-item';
+    div.draggable = true;
+    div.setAttribute('role', 'listitem');
+    div.setAttribute('aria-label', item.name);
+
+    const pagesStr = item.pageCount === null
+      ? '<span style="color:var(--text-muted)">reading…</span>'
+      : item.pageCount === 0
+        ? `<span class="text-error">${item.error || 'unreadable'}</span>`
+        : `<span class="pdf-item-pages">${item.pageCount} page${item.pageCount !== 1 ? 's' : ''}</span>`;
+
+    div.innerHTML = `
+      <div class="pdf-item-order" aria-hidden="true">${idx + 1}</div>
+      <div class="pdf-item-drag" title="Drag to reorder" aria-hidden="true">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="9" cy="6"  r="1.5"/><circle cx="15" cy="6"  r="1.5"/>
+          <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
+          <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
+        </svg>
+      </div>
+      <div class="pdf-item-icon" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="9" y1="13" x2="15" y2="13"/>
+          <line x1="9" y1="17" x2="15" y2="17"/>
+        </svg>
+      </div>
+      <div class="pdf-item-info">
+        <div class="pdf-item-name" title="${item.name}">${item.name}</div>
+        <div class="pdf-item-meta">${formatBytes(item.size)} · ${pagesStr}</div>
+      </div>
+      <button class="pdf-item-remove" aria-label="Remove ${item.name}">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>`;
+
+    /* Remove */
+    div.querySelector('.pdf-item-remove').addEventListener('click', (e) => {
+      e.stopPropagation();
+      fileList.splice(idx, 1);
+      if (fileList.length === 0) setState('upload');
+      else renderFileList();
+    });
+
+    /* Drag-to-reorder */
+    div.addEventListener('dragstart', (e) => {
+      dragSrcIdx = idx;
+      e.dataTransfer.effectAllowed = 'move';
+      setTimeout(() => div.classList.add('dragging'), 0);
+    });
+    div.addEventListener('dragend', () => {
+      div.classList.remove('dragging');
+      pdfListEl.querySelectorAll('.pdf-item').forEach(el => el.classList.remove('drag-over'));
+    });
+    div.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      pdfListEl.querySelectorAll('.pdf-item').forEach(el => el.classList.remove('drag-over'));
+      div.classList.add('drag-over');
+    });
+    div.addEventListener('dragleave', (e) => {
+      if (!div.contains(e.relatedTarget)) div.classList.remove('drag-over');
+    });
+    div.addEventListener('drop', (e) => {
+      e.preventDefault();
+      div.classList.remove('drag-over');
+      if (dragSrcIdx === null || dragSrcIdx === idx) return;
+      const moved = fileList.splice(dragSrcIdx, 1)[0];
+      fileList.splice(idx, 0, moved);
+      dragSrcIdx = null;
+      renderFileList();
+    });
+
+    return div;
+  }
+
+  /* ── Wire upload zones ── */
+  new FileDropZone('#upload-zone', {
+    accept: ['application/pdf'],
+    multiple: true,
+    onFile: () => {}, // handled via raw input event below
+  });
+
+  document.getElementById('file-input').addEventListener('change', (e) => {
+    if (e.target.files.length) addFiles(e.target.files);
+    e.target.value = '';
+  });
+
+  // Add-more zone
+  document.getElementById('add-more-input').addEventListener('change', (e) => {
+    if (e.target.files.length) addFiles(e.target.files);
+    e.target.value = '';
+  });
+
+  const addMoreZone = document.getElementById('add-more-zone');
+  addMoreZone.addEventListener('dragover', (e) => { e.preventDefault(); addMoreZone.classList.add('drag-over'); });
+  addMoreZone.addEventListener('dragleave', (e) => { if (!addMoreZone.contains(e.relatedTarget)) addMoreZone.classList.remove('drag-over'); });
+  addMoreZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    addMoreZone.classList.remove('drag-over');
+    if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+  });
+
+  // Also allow drop on the whole tool card when in files state
+  document.querySelector('[aria-label="Merge PDF tool"]').addEventListener('dragover', (e) => {
+    if (states.files.hidden) return;
+    e.preventDefault();
+  });
+  document.querySelector('[aria-label="Merge PDF tool"]').addEventListener('drop', (e) => {
+    if (states.files.hidden) return;
+    if (e.target.closest('#add-more-zone')) return; // handled above
+    e.preventDefault();
+    if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+  });
+
+  /* ── Merge ── */
+  btnMerge.addEventListener('click', mergePDFs);
+
+  async function mergePDFs() {
+    if (fileList.length < 2) return;
+
+    setState('processing');
+    processingTitle.textContent = `Merging ${fileList.length} PDFs…`;
+    processingSub.textContent   = 'Reading files and combining pages — please wait';
+
+    try {
+      await ensurePdfLib();
+      const { PDFDocument } = PDFLib;
+
+      const merged = await PDFDocument.create();
+      let totalPages = 0;
+
+      for (let i = 0; i < fileList.length; i++) {
+        processingSub.textContent = `Processing file ${i + 1} of ${fileList.length}…`;
+        const buf  = await fileList[i].file.arrayBuffer();
+        const doc  = await PDFDocument.load(buf, { ignoreEncryption: true });
+        const idxs = doc.getPageIndices();
+        const pages = await merged.copyPages(doc, idxs);
+        pages.forEach(p => merged.addPage(p));
+        totalPages += pages.length;
+      }
+
+      const bytes = await merged.save();
+      mergedBlob  = new Blob([bytes], { type: 'application/pdf' });
+
+      document.getElementById('result-files').textContent = fileList.length;
+      document.getElementById('result-pages').textContent = totalPages;
+      document.getElementById('result-size').textContent  = formatBytes(mergedBlob.size);
+
+      setState('result');
+
+    } catch (err) {
+      setState('error');
+      errorMessage.textContent = err.message.includes('encrypt')
+        ? 'One or more PDFs are password-protected and cannot be merged.'
+        : err.message || 'Failed to merge PDFs. Please check your files and try again.';
+    }
+  }
+
+  /* ── Download ── */
+  document.getElementById('btn-download').addEventListener('click', () => {
+    if (!mergedBlob) return;
+    Downloader.download(mergedBlob, 'litefile-merged.pdf');
+    Toaster.success('Downloading litefile-merged.pdf');
+  });
+
+  /* ── Reset ── */
+  function resetTool() {
+    fileList.length = 0;
+    mergedBlob = null;
+    setState('upload');
+  }
+
+  document.getElementById('btn-clear-all').addEventListener('click', resetTool);
+  document.getElementById('btn-merge-more').addEventListener('click', resetTool);
+  document.getElementById('btn-retry').addEventListener('click', () => {
+    if (fileList.length > 0) setState('files');
+    else resetTool();
+  });
+
+})();
+</script>
+</body>
+</html>
