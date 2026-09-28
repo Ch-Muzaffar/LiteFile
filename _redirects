@@ -1,0 +1,21 @@
+# LiteFile — Clean URL rewrites
+# Works on both Netlify and Cloudflare Pages.
+# Serves /page instead of /page.html — 200 = rewrite (not redirect).
+
+/compress-image     /compress-image.html    200
+/resize-image       /resize-image.html      200
+/heic-to-jpg        /heic-to-jpg.html       200
+/remove-background  /remove-background.html 200
+/compress-pdf       /compress-pdf.html      200
+/merge-pdf          /merge-pdf.html         200
+/split-pdf          /split-pdf.html         200
+/convert-image      /convert-image.html     200
+/qr-code            /qr-code.html           200
+/video-to-mp3       /video-to-mp3.html      200
+/about              /about.html             200
+/privacy            /privacy.html           200
+/terms              /terms.html             200
+/design-system      /design-system.html     200
+
+# 404 fallback — must be last
+/*                  /404.html               404
