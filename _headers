@@ -19,7 +19,3 @@
 
 /assets/og/*
   Cache-Control: public, max-age=31536000, immutable
-
-/video-to-mp3
-  Cross-Origin-Opener-Policy: same-origin
-  Cross-Origin-Embedder-Policy: credentialless

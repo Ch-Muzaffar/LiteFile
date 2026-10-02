@@ -655,19 +655,19 @@
     jCtx.fillRect(0, 0, jCanvas.width, jCanvas.height);
     jCtx.drawImage(img, 0, 0);
 
-    // WebP canvas — preserves alpha
-    const wCanvas = document.createElement('canvas');
-    wCanvas.width = img.naturalWidth; wCanvas.height = img.naturalHeight;
-    const wCtx = wCanvas.getContext('2d');
-    wCtx.imageSmoothingEnabled = true; wCtx.imageSmoothingQuality = 'high';
-    wCtx.drawImage(img, 0, 0);
+    // PNG canvas — preserves alpha (lossless)
+    const pCanvas = document.createElement('canvas');
+    pCanvas.width = img.naturalWidth; pCanvas.height = img.naturalHeight;
+    const pCtx = pCanvas.getContext('2d');
+    pCtx.imageSmoothingEnabled = true; pCtx.imageSmoothingQuality = 'high';
+    pCtx.drawImage(img, 0, 0);
 
     const bestAt = async (q) => {
-      const [j, w] = await Promise.all([
+      const [j, p] = await Promise.all([
         new Promise(r => jCanvas.toBlob(r, 'image/jpeg', q)),
-        new Promise(r => wCanvas.toBlob(r, 'image/webp', q)),
+        new Promise(r => pCanvas.toBlob(r, 'image/png')),
       ]);
-      const candidates = [j, w].filter(Boolean);
+      const candidates = [j, p].filter(Boolean);
       if (!candidates.length) throw new Error('Compression failed');
       return candidates.reduce((a, b) => a.size <= b.size ? a : b);
     };
@@ -683,7 +683,6 @@
 
   function mimeToExt(mime) {
     if (mime === 'image/jpeg') return 'jpg';
-    if (mime === 'image/webp') return 'webp';
     return 'png';
   }
 
