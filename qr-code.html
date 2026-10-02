@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free QR Code Generator Online — Create & Download QR Codes | LiteFile</title>
+  <meta name="description" content="Create QR codes for URLs, text, contact info, and more. Customize size, colors, and error correction. Download as PNG or SVG — free, instant, no sign-up." />
+  <link rel="canonical" href="https://litefile.cloud/qr-code" />
+
+  <meta property="og:title"       content="Free QR Code Generator — Create QR Codes Online | LiteFile" />
+  <meta property="og:description" content="Generate QR codes for any URL or text. Customize colors and size. Download as PNG or SVG. Free, instant, no sign-up." />
+  <meta property="og:url"         content="https://litefile.cloud/qr-code" />
+  <meta property="og:type"        content="website" />
+  <meta property="og:image"       content="https://litefile.cloud/assets/og/qr-code.png" />
+  <meta name="twitter:card"       content="summary_large_image" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What can I encode in a QR code?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Anything: URLs, plain text, email addresses, phone numbers, Wi-Fi credentials, or contact cards. QR readers on smartphones typically detect the type automatically and take appropriate action (open a browser, dial a number, etc.)." }
+      },
+      {
+        "@type": "Question",
+        "name": "What is error correction level?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Error correction lets a QR code be read even when partially damaged or obscured. L recovers ~7% data loss, M ~15%, Q ~25%, H ~30%. Use H if you'll print the QR code on a surface that might get dirty or damaged. Use L or M for clean digital use." }
+      },
+      {
+        "@type": "Question",
+        "name": "What size should I use?",
+        "acceptedAnswer": { "@type": "Answer", "text": "For digital use (websites, emails), 256px or 512px is fine. For print, use 1024px or higher to ensure the image is sharp at the printed size. QR codes should be at least 2cm × 2cm when printed." }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I use a custom foreground color?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes — choose any foreground color. Make sure there is strong contrast between the foreground (dark) and background (light) colors. Low-contrast QR codes may fail to scan." }
+      }
+    ]
+  }
+  </script>
+
+  <link rel="stylesheet" href="assets/style.css" />
+  <style>
+    /* ── QR Code tool styles ── */
+
+    .qr-layout {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: var(--s5);
+      align-items: start;
+    }
+
+    .qr-settings {
+      display: flex;
+      flex-direction: column;
+      gap: var(--s4);
+      padding: var(--s5);
+      border-right: 1px solid var(--glass-border);
+    }
+
+    .qr-textarea {
+      width: 100%;
+      background: var(--bg-elevated);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--r-md);
+      padding: var(--s3) var(--s4);
+      color: var(--text-primary);
+      font-size: var(--text-sm);
+      resize: vertical;
+      min-height: 96px;
+      line-height: 1.65;
+      transition: border-color var(--t) var(--ease);
+    }
+
+    .qr-textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .qr-textarea::placeholder { color: var(--text-muted); }
+
+    .char-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      margin-top: calc(var(--s2) * -1);
+    }
+
+    .char-row .warn { color: var(--warning); font-weight: 600; }
+
+    /* Segmented controls */
+    .seg-group {
+      display: flex;
+      gap: 2px;
+      padding: 2px;
+      background: var(--bg-elevated);
+      border-radius: var(--r-sm);
+      border: 1px solid var(--glass-border);
+    }
+
+    .seg-btn {
+      flex: 1;
+      padding: 7px var(--s2);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      border-radius: 6px;
+      color: var(--text-secondary);
+      background: transparent;
+      transition: background var(--t) var(--ease), color var(--t) var(--ease);
+      cursor: pointer;
+      border: none;
+      text-align: center;
+    }
+
+    .seg-btn:hover:not(.active) { background: var(--bg-glass); color: var(--text-primary); }
+    .seg-btn.active { background: var(--accent); color: #fff; }
+    .seg-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+    /* Color pickers */
+    .color-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--s3);
+    }
+
+    .color-pick {
+      display: flex;
+      align-items: center;
+      gap: var(--s2);
+      padding: var(--s2) var(--s3);
+      background: var(--bg-elevated);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--r-sm);
+      cursor: pointer;
+      transition: border-color var(--t) var(--ease);
+    }
+
+    .color-pick:hover { border-color: var(--accent); }
+
+    .color-pick label {
+      font-size: var(--text-xs);
+      color: var(--text-secondary);
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .color-pick input[type="color"] {
+      width: 26px;
+      height: 26px;
+      border: none;
+      background: none;
+      padding: 0;
+      cursor: pointer;
+      border-radius: 5px;
+      -webkit-appearance: none;
+      overflow: hidden;
+    }
+
+    .color-pick input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+    .color-pick input[type="color"]::-webkit-color-swatch { border: none; border-radius: 4px; }
+
+    /* Preview panel */
+    .qr-preview-panel {
+      padding: var(--s5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 380px;
+      gap: var(--s4);
+    }
+
+    .qr-canvas-wrap {
+      background: #fff;
+      border-radius: var(--r-md);
+      padding: var(--s3);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+      line-height: 0;
+      transition: box-shadow var(--t) var(--ease);
+    }
+
+    #qr-container canvas {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+    #qr-container img { display: none; }
+
+    .qr-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--s3);
+      color: var(--text-muted);
+    }
+
+    .qr-empty svg { opacity: 0.35; }
+    .qr-empty p { font-size: var(--text-sm); }
+
+    .qr-meta-row {
+      display: flex;
+      gap: var(--s2);
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .qr-download-row {
+      display: flex;
+      gap: var(--s3);
+      flex-wrap: wrap;
+      padding: var(--s4) var(--s5) var(--s5);
+      border-top: 1px solid var(--glass-border);
+    }
+
+    @media (max-width: 860px) {
+      .qr-layout { grid-template-columns: 1fr; }
+      .qr-settings { border-right: none; border-bottom: 1px solid var(--glass-border); }
+      .qr-preview-panel { min-height: 280px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="nav-slot"></div>
+
+  <main>
+
+    <!-- ── Hero ── -->
+    <section class="hero hero--tool">
+      <div class="container">
+        <div class="badge-row">
+          <span class="badge badge--accent">PNG + SVG export</span>
+          <span class="badge badge--accent">Custom colors</span>
+          <span class="badge badge--accent">No sign-up</span>
+        </div>
+        <h1 class="fade-in">QR Code Generator</h1>
+        <p class="hero-tagline fade-in">Create QR codes for any URL, text, or contact info. Customize size, colors, and error correction — download as PNG or SVG instantly.</p>
+      </div>
+    </section>
+
+    <!-- ── Tool ── -->
+    <section class="section--sm" style="padding-top:0">
+      <div class="container">
+        <div class="glass-card" role="region" aria-label="QR code generator tool">
+
+          <div class="qr-layout">
+
+            <!-- Settings panel -->
+            <div class="qr-settings">
+
+              <div>
+                <p class="section-label">Text or URL</p>
+                <textarea
+                  id="qr-text"
+                  class="qr-textarea"
+                  placeholder="https://example.com"
+                  aria-label="QR code content"
+                  spellcheck="false"
+                ></textarea>
+                <div class="char-row">
+                  <span id="char-display"><span id="char-count">0</span> characters</span>
+                  <span id="char-limit-note"></span>
+                </div>
+              </div>
+
+              <hr class="divider" style="margin:0" />
+
+              <div>
+                <p class="section-label">Output size</p>
+                <div class="seg-group" role="group" aria-label="Output size">
+                  <button class="seg-btn" data-group="size" data-value="128">128 px</button>
+                  <button class="seg-btn active" data-group="size" data-value="256">256 px</button>
+                  <button class="seg-btn" data-group="size" data-value="512">512 px</button>
+                  <button class="seg-btn" data-group="size" data-value="1024">1024 px</button>
+                </div>
+              </div>
+
+              <div>
+                <p class="section-label">Error correction</p>
+                <div class="seg-group" role="group" aria-label="Error correction level">
+                  <button class="seg-btn" data-group="ec" data-value="L" title="~7% recovery — smallest size">L</button>
+                  <button class="seg-btn active" data-group="ec" data-value="M" title="~15% recovery — balanced">M</button>
+                  <button class="seg-btn" data-group="ec" data-value="Q" title="~25% recovery — better for print">Q</button>
+                  <button class="seg-btn" data-group="ec" data-value="H" title="~30% recovery — best for logos inside">H</button>
+                </div>
+                <p style="font-size:var(--text-xs);color:var(--text-muted);margin-top:var(--s2);line-height:1.5">Higher = can recover from more damage. Use H if adding a logo inside the QR code.</p>
+              </div>
+
+              <div>
+                <p class="section-label">Colors</p>
+                <div class="color-row">
+                  <div class="color-pick">
+                    <input type="color" id="qr-fg" value="#000000" aria-label="Foreground color" />
+                    <label for="qr-fg">Foreground</label>
+                  </div>
+                  <div class="color-pick">
+                    <input type="color" id="qr-bg" value="#ffffff" aria-label="Background color" />
+                    <label for="qr-bg">Background</label>
+                  </div>
+                </div>
+              </div>
+
+            </div><!-- /settings -->
+
+            <!-- Preview panel -->
+            <div class="qr-preview-panel">
+
+              <div id="qr-empty" class="qr-empty">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                  <rect x="3" y="14" width="7" height="7"/>
+                  <path d="M14 14h.01M14 17h.01M17 14h.01M17 17h.01M20 14h.01M20 17h.01M20 20h.01M17 20h.01M14 20h.01"/>
+                </svg>
+                <p>Enter text above to generate a QR code</p>
+              </div>
+
+              <div id="qr-result" hidden>
+                <div class="qr-canvas-wrap">
+                  <div id="qr-container" aria-label="Generated QR code" style="line-height:0"></div>
+                </div>
+                <div class="qr-meta-row" id="qr-meta" style="margin-top:var(--s3)"></div>
+              </div>
+
+            </div>
+
+          </div><!-- /qr-layout -->
+
+          <!-- Download row -->
+          <div class="qr-download-row">
+            <button id="btn-dl-png" class="btn btn-primary" disabled>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download PNG
+            </button>
+            <p style="font-size:var(--text-xs);color:var(--text-muted);align-self:center;margin-left:auto">PNG — best for digital use and compatible with all platforms</p>
+          </div>
+
+        </div><!-- /glass-card -->
+      </div>
+    </section>
+
+    <!-- ── How it works ── -->
+    <section class="section--sm">
+      <div class="container">
+        <div class="fade-in">
+          <p class="section-label">How it works</p>
+          <h2 class="section-heading">Generated entirely in your browser</h2>
+        </div>
+        <div class="steps stagger-children">
+          <div class="step glass-card fade-in">
+            <div class="step-number">1</div>
+            <h3>Enter your content</h3>
+            <p>Paste a URL, type a message, or enter any text. The QR code updates in real time as you type.</p>
+          </div>
+          <div class="step glass-card fade-in">
+            <div class="step-number">2</div>
+            <h3>Customize</h3>
+            <p>Choose the output size, error correction level, and colors. Higher error correction lets the QR code survive physical damage.</p>
+          </div>
+          <div class="step glass-card fade-in">
+            <div class="step-number">3</div>
+            <h3>Download</h3>
+            <p>Save as PNG for digital use, or SVG for infinite-scale printing. Both are ready to use immediately.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── FAQ ── -->
+    <section class="section--sm">
+      <div class="container" style="max-width:800px">
+        <p class="section-label fade-in">FAQ</p>
+        <h2 class="section-heading fade-in">Common questions</h2>
+        <div class="faq-list fade-in">
+          <details class="faq-item">
+            <summary class="faq-question">What can I encode in a QR code?</summary>
+            <div class="faq-answer">
+              <p>Anything: URLs, plain text, email addresses, phone numbers, Wi-Fi credentials, or contact cards (vCard). Most smartphone cameras detect the content type automatically and take the right action — open a browser, dial a number, add a contact, and so on.</p>
+            </div>
+          </details>
+          <details class="faq-item">
+            <summary class="faq-question">What is error correction level?</summary>
+            <div class="faq-answer">
+              <p>Error correction allows a QR code to be read even when part of it is damaged, dirty, or obscured. L recovers ~7% data loss, M ~15%, Q ~25%, H ~30%. Use H if you plan to place a logo or image inside the QR code. Use L or M for clean digital displays.</p>
+            </div>
+          </details>
+          <details class="faq-item">
+            <summary class="faq-question">Why does my QR code fail to scan?</summary>
+            <div class="faq-answer">
+              <p>The most common causes: low contrast between foreground and background colors, text that is too long (making the QR code too dense), or the image is printed too small (minimum 2 cm × 2 cm recommended). Try increasing the error correction level or shortening the content with a URL shortener.</p>
+            </div>
+          </details>
+          <details class="faq-item">
+            <summary class="faq-question">Is there a character limit?</summary>
+            <div class="faq-answer">
+              <p>QR codes can encode up to ~2,953 characters in byte mode (at error correction L). For typical URLs this is rarely an issue. Very long text or data strings may exceed the limit — the generator will warn you when you're approaching it.</p>
+            </div>
+          </details>
+          <details class="faq-item">
+            <summary class="faq-question">PNG or SVG — which should I use?</summary>
+            <div class="faq-answer">
+              <p>Use <strong>PNG</strong> for digital use: websites, emails, presentations, and screen display. Use <strong>SVG</strong> for print: it scales to any size without pixelation, making it ideal for business cards, posters, and product packaging.</p>
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="footer-slot"></div>
+  <script src="assets/utils.js"></script>
+  <script>
+    /* ── QR Code Generator ── */
+
+    const textEl   = document.getElementById('qr-text');
+
+    const emptyEl      = document.getElementById('qr-empty');
+    const resultEl     = document.getElementById('qr-result');
+    const metaEl       = document.getElementById('qr-meta');
+    const countEl      = document.getElementById('char-count');
+    const limitEl      = document.getElementById('char-limit-note');
+    const btnPNG       = document.getElementById('btn-dl-png');
+    const qrContainer  = document.getElementById('qr-container');
+
+    const MAX_CHARS = 2953; // byte mode, error correction L
+    let qrReady = false;
+    let qrCanvas = null;
+    let renderTimer = null;
+    let selectedSize = 256;
+    let selectedEC   = 'M';
+    let fgColor = '#000000';
+    let bgColor = '#ffffff';
+
+    /* ── Library loader (qrcodejs) ── */
+    function loadQRLib() {
+      if (window.QRCode && typeof window.QRCode === 'function') return Promise.resolve();
+      const urls = [
+        'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js',
+        'https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs@gh-pages/qrcode.min.js',
+      ];
+      return new Promise((resolve, reject) => {
+        let idx = 0;
+        function tryNext() {
+          if (idx >= urls.length) { reject(new Error('Failed to load QR library')); return; }
+          const s = document.createElement('script');
+          s.src = urls[idx++];
+          s.onload = () => (window.QRCode && typeof window.QRCode === 'function') ? resolve() : tryNext();
+          s.onerror = tryNext;
+          document.head.appendChild(s);
+        }
+        tryNext();
+      });
+    }
+
+    /* ── Render ── */
+    async function render() {
+      const text = textEl.value;
+      countEl.textContent = text.length;
+
+      if (text.length > MAX_CHARS * 0.9) {
+        limitEl.textContent = text.length > MAX_CHARS
+          ? 'Too long — reduce text'
+          : `${MAX_CHARS - text.length} chars remaining`;
+        limitEl.className = text.length > MAX_CHARS ? 'warn' : '';
+      } else {
+        limitEl.textContent = '';
+      }
+
+      if (!text.trim()) {
+        emptyEl.hidden = false;
+        resultEl.hidden = true;
+        btnPNG.disabled = true;
+        qrReady = false;
+        return;
+      }
+
+      try {
+        await loadQRLib();
+        qrContainer.innerHTML = '';
+        new QRCode(qrContainer, {
+          text,
+          width:       selectedSize,
+          height:      selectedSize,
+          colorDark:   fgColor,
+          colorLight:  bgColor,
+          correctLevel: QRCode.CorrectLevel[selectedEC],
+        });
+        qrCanvas = qrContainer.querySelector('canvas');
+        emptyEl.hidden = true;
+        resultEl.hidden = false;
+        btnPNG.disabled = false;
+        qrReady = true;
+
+        const dataLen = qrCanvas ? qrCanvas.width * qrCanvas.height * 4 : 0;
+        metaEl.innerHTML = `
+          <span class="badge">${selectedSize} × ${selectedSize} px</span>
+          <span class="badge">EC: ${selectedEC}</span>
+          <span class="badge">~${Math.round(dataLen / 1024 / 8)} KB PNG</span>`;
+      } catch (err) {
+        Toaster.error(text.length > MAX_CHARS
+          ? 'Text is too long for a QR code. Try shortening it.'
+          : 'Failed to generate QR code.');
+        btnPNG.disabled = true;
+        qrReady = false;
+      }
+    }
+
+    function scheduleRender() {
+      clearTimeout(renderTimer);
+      renderTimer = setTimeout(render, 150);
+    }
+
+    /* ── Segmented controls ── */
+    document.querySelectorAll('.seg-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const group = btn.dataset.group;
+        document.querySelectorAll(`.seg-btn[data-group="${group}"]`).forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        if (group === 'size') selectedSize = parseInt(btn.dataset.value);
+        if (group === 'ec')   selectedEC   = btn.dataset.value;
+        render();
+      });
+    });
+
+    /* ── Color pickers ── */
+    document.getElementById('qr-fg').addEventListener('input', e => { fgColor = e.target.value; scheduleRender(); });
+    document.getElementById('qr-bg').addEventListener('input', e => { bgColor = e.target.value; scheduleRender(); });
+
+    /* ── Text input ── */
+    textEl.addEventListener('input', scheduleRender);
+
+    /* ── Downloads ── */
+    btnPNG.addEventListener('click', () => {
+      if (!qrReady || !qrCanvas) return;
+      qrCanvas.toBlob(blob => Downloader.download(blob, 'litefile-qrcode.png'), 'image/png');
+      Analytics.event('QR Code Download', { format: 'png' });
+    });
+
+    /* ── Init with default ── */
+    textEl.value = 'https://litefile.cloud';
+    render();
+  </script>
+</body>
+</html>

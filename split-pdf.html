@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Split PDF Online Free — Extract Pages from Any PDF | LiteFile</title>
+  <meta name="description" content="Split a PDF into individual pages or extract custom page ranges — free, instant, 100% in your browser. No upload, no account needed." />
+  <link rel="canonical" href="https://litefile.cloud/split-pdf" />
+
+  <meta property="og:title"       content="Split PDF Online Free — Extract Pages from Any PDF | LiteFile" />
+  <meta property="og:description" content="Split any PDF into individual pages or extract custom ranges. 100% in your browser — no upload, no signup, free." />
+  <meta property="og:url"         content="https://litefile.cloud/split-pdf" />
+  <meta property="og:type"        content="website" />
+  <meta property="og:image"       content="https://litefile.cloud/assets/og/split-pdf.png" />
+  <meta name="twitter:card"       content="summary_large_image" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How do I split a PDF into individual pages?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Upload your PDF to LiteFile, select 'All pages' mode, and click Split. Each page is extracted into its own PDF file and downloaded as a ZIP archive. Everything runs in your browser — nothing is uploaded."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I extract just a specific range of pages?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Choose 'Page range' mode, enter the start and end page numbers, and click Extract pages. The result is a single PDF containing only those pages."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I split a PDF into multiple parts with different page ranges?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Use 'Custom ranges' mode and enter comma-separated ranges — for example '1-3, 5, 7-10'. This creates three PDFs: one for pages 1–3, one for page 5, and one for pages 7–10. They are downloaded together as a ZIP file."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is the output quality the same as the original?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Pages are copied directly from the original PDF without re-rendering or re-compressing. Text stays crisp and selectable, images keep their original quality, and the file size of each output PDF matches its share of the original."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I split a password-protected PDF?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. Password-protected PDFs cannot be split. Remove the password protection from the file first, then upload it to LiteFile."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <link rel="stylesheet" href="assets/style.css" />
+  <style>
+    .tool-wrap { max-width: 720px; margin: 0 auto; }
+
+    /* ── File meta bar ── */
+    .file-meta {
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      margin-bottom: var(--s5);
+      padding-bottom: var(--s5);
+      border-bottom: 1px solid var(--glass-border);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .file-meta strong { color: var(--text-primary); font-weight: 500; }
+
+    /* ── Mode selector ── */
+    .mode-selector {
+      display: flex;
+      border: 1px solid var(--glass-border);
+      border-radius: var(--r-md);
+      overflow: hidden;
+      margin-bottom: var(--s4);
+    }
+
+    .mode-btn {
+      flex: 1;
+      padding: var(--s3) var(--s3);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--text-muted);
+      background: var(--bg-elevated);
+      border-right: 1px solid var(--glass-border);
+      transition: color var(--t) var(--ease), background var(--t) var(--ease);
+      text-align: center;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .mode-btn:last-child { border-right: none; }
+    .mode-btn.active {
+      color: var(--text-primary);
+      background: var(--bg-surface);
+      box-shadow: inset 0 -2px 0 var(--accent);
+    }
+    .mode-btn:hover:not(.active) {
+      color: var(--text-secondary);
+      background: var(--bg-surface);
+    }
+
+    /* ── Mode panel ── */
+    .mode-panel {
+      background: var(--bg-elevated);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--r-md);
+      padding: var(--s5);
+      margin-bottom: var(--s4);
+      min-height: 90px;
+    }
+
+    .mode-panel-title {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--s2);
+    }
+
+    .mode-panel-desc {
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+
+    .warn-banner {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--s3);
+      margin-top: var(--s4);
+      padding: var(--s3) var(--s4);
+      background: var(--warning-subtle);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+      border-radius: var(--r-sm);
+      font-size: var(--text-xs);
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+    .warn-banner svg { flex-shrink: 0; color: var(--warning); margin-top: 1px; }
+
+    /* ── Range inputs ── */
+    .range-row {
+      display: flex;
+      align-items: center;
+      gap: var(--s3);
+      margin-top: var(--s4);
+      flex-wrap: wrap;
+    }
+
+    .range-label {
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+    }
+
+    .range-input {
+      width: 72px;
+      padding: 8px var(--s3);
+      background: var(--bg-base);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--r-sm);
+      color: var(--text-primary);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      text-align: center;
+      -moz-appearance: textfield;
+      transition: border-color var(--t) var(--ease);
+    }
+    .range-input::-webkit-inner-spin-button,
+    .range-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+    .range-input:focus   { outline: none; border-color: var(--accent); }
+    .range-input.invalid { border-color: var(--error); }
+
+    .range-hint {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      margin-top: var(--s3);
+    }
+
+    /* ── Custom input ── */
+    .custom-input {
+      width: 100%;
+      padding: 9px var(--s4);
+      background: var(--bg-base);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--r-sm);
+      color: var(--text-primary);
+      font-size: var(--text-sm);
+      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+      transition: border-color var(--t) var(--ease);
+      margin-top: var(--s4);
+    }
+    .custom-input:focus   { outline: none; border-color: var(--accent); }
+    .custom-input.invalid { border-color: var(--error); }
+    .custom-input::placeholder { color: var(--text-muted); font-family: var(--font); }
+
+    .custom-hint {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      margin-top: var(--s2);
+      line-height: 1.5;
+    }
+    .custom-hint code {
+      font-family: 'SF Mono', 'Consolas', monospace;
+      background: var(--bg-base);
+      padding: 1px 5px;
+      border-radius: 3px;
+      color: var(--accent);
+    }
+
+    /* ── Preview line ── */
+    .preview-box {
+      display: flex;
+      align-items: center;
+      gap: var(--s3);
+      padding: var(--s3) var(--s4);
+      background: var(--accent-subtle);
+      border: 1px solid rgba(99,102,241,0.18);
+      border-radius: var(--r-sm);
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      min-height: 40px;
+    }
+    .preview-box strong { color: var(--text-primary); }
+    .preview-box code {
+      font-family: 'SF Mono', monospace;
+      font-size: var(--text-xs);
+      background: var(--bg-elevated);
+      padding: 1px 5px;
+      border-radius: 3px;
+      color: var(--accent);
+    }
+    .preview-box.preview-error {
+      background: var(--error-subtle);
+      border-color: rgba(239,68,68,0.18);
+      color: var(--error);
+    }
+
+    /* ── Configure footer ── */
+    .config-footer {
+      border-top: 1px solid var(--glass-border);
+      padding-top: var(--s4);
+      margin-top: var(--s4);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--s4);
+    }
+
+    /* ── Loading state ── */
+    .state-center {
+      text-align: center;
+      padding: var(--s8) var(--s5);
+    }
+    .state-center .spinner {
+      width: 36px; height: 36px; border-width: 3px;
+      margin: 0 auto var(--s5);
+    }
+    .state-title { font-size: var(--text-md); font-weight: 600; margin-bottom: var(--s2); }
+    .state-sub   { font-size: var(--text-sm); color: var(--text-muted); }
+
+    /* ── Result state ── */
+    .result-stat-row {
+      display: flex;
+      gap: var(--s4);
+      margin-bottom: var(--s5);
+      flex-wrap: wrap;
+    }
+    .result-stat {
+      flex: 1;
+      min-width: 80px;
+      text-align: center;
+      padding: var(--s3);
+      background: var(--bg-elevated);
+      border-radius: var(--r-md);
+    }
+    .result-stat-value { font-size: var(--text-xl); font-weight: 600; letter-spacing: -0.01em; }
+    .result-stat-label { font-size: var(--text-xs); color: var(--text-muted); margin-top: 2px; }
+
+    .result-actions {
+      display: flex;
+      gap: var(--s3);
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    /* ── Error state ── */
+    .error-inner {
+      text-align: center;
+      padding: var(--s7) var(--s5);
+    }
+    .error-icon {
+      width: 48px; height: 48px;
+      background: var(--error-subtle); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto var(--s4); color: var(--error);
+    }
+
+    /* ── Related grid ── */
+    .related-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--s4);
+      margin-top: var(--s5);
+    }
+
+    @media (max-width: 600px) {
+      .mode-btn       { font-size: var(--text-xs); padding: var(--s2); }
+      .config-footer  { flex-direction: column; align-items: stretch; }
+      .result-actions { flex-direction: column; }
+      .related-grid   { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="nav-slot"></div>
+
+<main>
+
+  <!-- ── Hero ── -->
+  <section class="hero hero--tool" aria-label="Tool introduction">
+    <div class="container">
+      <h1>Split PDF Online, Free</h1>
+      <p class="hero-tagline">Extract every page as a separate file, pull out a specific range, or define custom splits — 100% in your browser. No upload, no account, no watermarks.</p>
+      <div class="badge-row" style="justify-content:center">
+        <span class="badge">No upload</span>
+        <span class="badge">100% free</span>
+        <span class="badge badge--success">No quality loss</span>
+        <span class="badge">Custom ranges</span>
+        <span class="badge">ZIP download</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="container">
+    <div class="tool-wrap">
+
+      <!-- ── Tool Card ── -->
+      <div class="glass-card" style="padding:var(--s6)" role="region" aria-label="Split PDF tool">
+
+        <!-- STATE: Upload -->
+        <div id="state-upload">
+          <div class="upload-zone" id="upload-zone" role="button" aria-label="Upload a PDF to split">
+            <input type="file" id="file-input" accept="application/pdf,.pdf" aria-label="Choose PDF file" />
+            <div id="upload-icon-slot" class="upload-icon" aria-hidden="true"></div>
+            <h3>Drop your PDF here</h3>
+            <p>or click to browse — one file at a time</p>
+            <span class="upload-hint">PDF files only · Up to 200 MB</span>
+          </div>
+        </div>
+
+        <!-- STATE: Loading (reading PDF) -->
+        <div id="state-loading" hidden>
+          <div class="state-center">
+            <div class="spinner" role="status" aria-label="Reading PDF"></div>
+            <div class="state-title">Reading PDF…</div>
+            <div class="state-sub">Counting pages and preparing split options</div>
+          </div>
+        </div>
+
+        <!-- STATE: Configure -->
+        <div id="state-configure" hidden>
+
+          <!-- File info -->
+          <div class="file-meta" id="file-meta"></div>
+
+          <!-- Mode selector -->
+          <div class="mode-selector" role="group" aria-label="Choose how to split">
+            <button class="mode-btn active" data-mode="all"    type="button">All pages</button>
+            <button class="mode-btn"        data-mode="range"  type="button">Page range</button>
+            <button class="mode-btn"        data-mode="custom" type="button">Custom ranges</button>
+          </div>
+
+          <!-- Panel: All pages -->
+          <div class="mode-panel" id="panel-all" role="region" aria-label="All pages options">
+            <div class="mode-panel-title">Extract every page as a separate PDF</div>
+            <p class="mode-panel-desc">
+              Each page becomes its own PDF file.
+              A ZIP archive containing all <strong id="page-count-all">–</strong> files will be downloaded.
+            </p>
+            <div class="warn-banner" id="warn-large" hidden>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              <span>This PDF has many pages. Splitting may take a moment and use significant browser memory. For large files, consider using <em>Page range</em> or <em>Custom ranges</em> instead.</span>
+            </div>
+          </div>
+
+          <!-- Panel: Page range -->
+          <div class="mode-panel" id="panel-range" hidden role="region" aria-label="Page range options">
+            <div class="mode-panel-title">Extract a page range as one PDF</div>
+            <p class="mode-panel-desc">Choose a start and end page. The result is a single PDF containing only those pages.</p>
+            <div class="range-row">
+              <span class="range-label">From page</span>
+              <input type="number" id="input-from" class="range-input"
+                     min="1" aria-label="Start page" />
+              <span class="range-label">to page</span>
+              <input type="number" id="input-to" class="range-input"
+                     min="1" aria-label="End page" />
+              <span class="range-label" id="range-max-hint" style="color:var(--text-muted)"></span>
+            </div>
+          </div>
+
+          <!-- Panel: Custom ranges -->
+          <div class="mode-panel" id="panel-custom" hidden role="region" aria-label="Custom ranges options">
+            <div class="mode-panel-title">Split into multiple parts by custom ranges</div>
+            <p class="mode-panel-desc">Enter comma-separated ranges. Each range becomes a separate PDF file.</p>
+            <input type="text" id="input-custom" class="custom-input"
+                   placeholder="e.g. 1-3, 5, 7-10"
+                   aria-label="Page ranges, e.g. 1-3, 5, 7-10"
+                   autocomplete="off" spellcheck="false" />
+            <div class="custom-hint">
+              Separate ranges with commas: <code>1-3, 5, 7-10</code> creates 3 PDFs — pages 1–3, page 5, pages 7–10.
+            </div>
+          </div>
+
+          <!-- Preview -->
+          <div class="preview-box" id="preview-box" aria-live="polite">
+            <span id="preview-text">–</span>
+          </div>
+
+          <!-- Footer -->
+          <div class="config-footer">
+            <button class="btn btn-ghost btn-sm" id="btn-change-file" type="button">Change file</button>
+            <button class="btn btn-primary" id="btn-split" type="button" disabled>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="12" y1="2" x2="12" y2="22"/>
+                <path d="M5 6l7-4 7 4"/>
+                <path d="M5 18l7 4 7-4"/>
+              </svg>
+              <span id="btn-split-label">Split PDF</span>
+            </button>
+          </div>
+
+        </div><!-- /state-configure -->
+
+        <!-- STATE: Processing -->
+        <div id="state-processing" hidden>
+          <div class="state-center">
+            <div class="spinner" role="status" aria-label="Splitting PDF"></div>
+            <div class="state-title" id="process-title">Splitting PDF…</div>
+            <div class="state-sub" id="process-sub">Extracting pages — please wait</div>
+          </div>
+        </div>
+
+        <!-- STATE: Result -->
+        <div id="state-result" hidden>
+          <div style="padding:var(--s2)">
+
+            <div class="result-box" style="margin-bottom:var(--s5)">
+              <div>
+                <div style="font-size:var(--text-base);font-weight:600;color:var(--success);margin-bottom:4px">Split successfully</div>
+                <div style="font-size:var(--text-sm);color:var(--text-secondary)" id="result-desc">Your PDF has been split</div>
+              </div>
+              <span class="badge badge--success">Ready</span>
+            </div>
+
+            <div class="result-stat-row">
+              <div class="result-stat">
+                <div class="result-stat-value" id="result-files">–</div>
+                <div class="result-stat-label">Files created</div>
+              </div>
+              <div class="result-stat">
+                <div class="result-stat-value" id="result-pages">–</div>
+                <div class="result-stat-label">Source pages</div>
+              </div>
+              <div class="result-stat">
+                <div class="result-stat-value" id="result-size">–</div>
+                <div class="result-stat-label">Total size</div>
+              </div>
+            </div>
+
+            <div class="result-actions">
+              <button class="btn btn-ghost" id="btn-split-another" type="button">Split another PDF</button>
+              <button class="btn btn-primary btn-lg" id="btn-download" type="button">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                <span id="btn-download-label">Download</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- STATE: Error -->
+        <div id="state-error" hidden>
+          <div class="error-inner">
+            <div class="error-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+            </div>
+            <div class="state-title text-error">Split failed</div>
+            <p class="state-sub mt-2" id="error-message">The file could not be processed. Please try again.</p>
+            <button class="btn btn-secondary mt-4" id="btn-retry" type="button">Try another file</button>
+          </div>
+        </div>
+
+      </div><!-- /tool-card -->
+
+      <!-- ── How it works ── -->
+      <section class="section--sm" aria-labelledby="how-heading">
+        <p class="section-label">Simple process</p>
+        <h2 class="section-heading fade-in" id="how-heading">How it works</h2>
+        <div class="steps">
+          <div class="step glass-card fade-in">
+            <div class="step-number" aria-hidden="true">1</div>
+            <h3>Upload your PDF</h3>
+            <p>Drop a single PDF file. LiteFile reads it locally — nothing is uploaded to any server.</p>
+          </div>
+          <div class="step glass-card fade-in">
+            <div class="step-number" aria-hidden="true">2</div>
+            <h3>Choose how to split</h3>
+            <p>Extract every page, pull out a specific range, or define multiple custom ranges — each becoming its own PDF.</p>
+          </div>
+          <div class="step glass-card fade-in">
+            <div class="step-number" aria-hidden="true">3</div>
+            <h3>Download your files</h3>
+            <p>Single files download as PDF. Multiple files download as a ZIP archive — no quality loss, no re-compression.</p>
+          </div>
+        </div>
+      </section>
+
+      <hr class="divider" />
+
+      <!-- ── FAQ ── -->
+      <section class="section--sm" aria-labelledby="faq-heading">
+        <p class="section-label">Questions</p>
+        <h2 class="section-heading fade-in" id="faq-heading">Frequently asked questions</h2>
+        <div class="faq-list mt-4">
+
+          <details class="faq-item fade-in">
+            <summary class="faq-question">How do I split a PDF into individual pages?</summary>
+            <div class="faq-answer">
+              <p>Upload your PDF, select <strong>All pages</strong> mode, and click Split. Each page is extracted into its own PDF file and all files are bundled into a ZIP archive for download.</p>
+              <p>Everything runs in your browser — nothing is uploaded to a server.</p>
+            </div>
+          </details>
+
+          <details class="faq-item fade-in">
+            <summary class="faq-question">Can I extract just a specific range of pages?</summary>
+            <div class="faq-answer">
+              <p>Yes. Choose <strong>Page range</strong> mode, enter the start and end page numbers, and click Extract pages. The result is a single PDF containing only those pages — useful for pulling out a chapter, a section, or a single page.</p>
+            </div>
+          </details>
+
+          <details class="faq-item fade-in">
+            <summary class="faq-question">How do I split a PDF into multiple parts with different page ranges?</summary>
+            <div class="faq-answer">
+              <p>Use <strong>Custom ranges</strong> mode. Enter comma-separated ranges — for example <code style="font-family:monospace;font-size:0.9em;background:var(--bg-elevated);padding:1px 5px;border-radius:3px">1-3, 5, 7-10</code> — and click Split.</p>
+              <p>This creates three PDFs: one for pages 1–3, one for page 5, and one for pages 7–10. They are downloaded together as a ZIP archive.</p>
+            </div>
+          </details>
+
+          <details class="faq-item fade-in">
+            <summary class="faq-question">Is the output quality the same as the original?</summary>
+            <div class="faq-answer">
+              <p>Yes. Pages are copied directly from the original PDF without re-rendering or re-compressing. Text stays crisp and selectable, images keep their original quality, and the file size of each output PDF matches its share of the original.</p>
+            </div>
+          </details>
+
+          <details class="faq-item fade-in">
+            <summary class="faq-question">Can I split a password-protected PDF?</summary>
+            <div class="faq-answer">
+              <p>No. Password-protected PDFs cannot be split. Remove the password protection from the file first — many PDF viewers let you do this via Print → Save as PDF — then upload the unprotected copy to LiteFile.</p>
+            </div>
+          </details>
+
+        </div>
+      </section>
+
+      <hr class="divider" />
+
+      <!-- ── Related tools ── -->
+      <section class="section--sm" aria-labelledby="related-heading">
+        <p class="section-label">Related tools</p>
+        <h2 class="section-heading fade-in" id="related-heading">You might also need</h2>
+        <div class="related-grid">
+          <a href="/merge-pdf" class="glass-card tool-card fade-in" aria-label="Merge PDF tool">
+            <div class="tool-card-label">PDF</div>
+            <h3>Merge PDF</h3>
+            <p>Combine multiple PDFs into one document — the reverse of splitting. Drag to reorder files before merging.</p>
+            <div class="tool-card-arrow" aria-hidden="true">→</div>
+          </a>
+          <a href="/compress-pdf" class="glass-card tool-card fade-in" aria-label="Compress PDF tool">
+            <div class="tool-card-label">PDF</div>
+            <h3>Compress PDF</h3>
+            <p>Reduce the file size of your extracted pages before sharing or uploading — works best on image-heavy PDFs.</p>
+            <div class="tool-card-arrow" aria-hidden="true">→</div>
+          </a>
+        </div>
+      </section>
+
+    </div><!-- /tool-wrap -->
+  </div><!-- /container -->
+</main>
+
+<div id="footer-slot"></div>
+
+<script src="assets/utils.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  /* ── Constants ── */
+  const MODES = { ALL: 'all', RANGE: 'range', CUSTOM: 'custom' };
+  const LARGE_PAGE_THRESHOLD = 30;
+
+  /* ── State ── */
+  let currentFile  = null;
+  let pdfBytes     = null;
+  let totalPages   = 0;
+  let currentMode  = MODES.ALL;
+  let resultFiles  = [];
+  let PDFLib       = null;
+  let JSZipLib     = null;
+
+  /* ── DOM refs ── */
+  const states = {
+    upload:     document.getElementById('state-upload'),
+    loading:    document.getElementById('state-loading'),
+    configure:  document.getElementById('state-configure'),
+    processing: document.getElementById('state-processing'),
+    result:     document.getElementById('state-result'),
+    error:      document.getElementById('state-error'),
+  };
+
+  const fileMeta      = document.getElementById('file-meta');
+  const pageCountAll  = document.getElementById('page-count-all');
+  const warnLarge     = document.getElementById('warn-large');
+  const modeBtns      = document.querySelectorAll('.mode-btn');
+  const panelAll      = document.getElementById('panel-all');
+  const panelRange    = document.getElementById('panel-range');
+  const panelCustom   = document.getElementById('panel-custom');
+  const inputFrom     = document.getElementById('input-from');
+  const inputTo       = document.getElementById('input-to');
+  const rangeMaxHint  = document.getElementById('range-max-hint');
+  const inputCustom   = document.getElementById('input-custom');
+  const previewBox    = document.getElementById('preview-box');
+  const previewText   = document.getElementById('preview-text');
+  const btnSplit      = document.getElementById('btn-split');
+  const btnSplitLabel = document.getElementById('btn-split-label');
+  const processTitle  = document.getElementById('process-title');
+  const processSub    = document.getElementById('process-sub');
+  const errorMessage  = document.getElementById('error-message');
+
+  /* ── Inject icon ── */
+  document.getElementById('upload-icon-slot').innerHTML = Icons.upload();
+
+  /* ── setState ── */
+  function setState(name) {
+    Object.entries(states).forEach(([k, el]) => { el.hidden = k !== name; });
+  }
+
+  /* ── Lazy-load pdf-lib ── */
+  function ensurePdfLib() {
+    if (PDFLib) return Promise.resolve();
+    return new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js';
+      s.onload  = () => { PDFLib = window.PDFLib; resolve(); };
+      s.onerror = () => reject(new Error('Failed to load pdf-lib. Please check your connection and try again.'));
+      document.head.appendChild(s);
+    });
+  }
+
+  /* ── Lazy-load JSZip ── */
+  function ensureJSZip() {
+    if (JSZipLib) return Promise.resolve();
+    return new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';
+      s.onload  = () => { JSZipLib = window.JSZip; resolve(); };
+      s.onerror = () => reject(new Error('Failed to load JSZip.'));
+      document.head.appendChild(s);
+    });
+  }
+
+  /* ── Drop zone ── */
+  new FileDropZone('#upload-zone', {
+    accept:  ['application/pdf'],
+    maxSize: 200 * 1024 * 1024,
+    onFile:  loadFile,
+  });
+
+  document.getElementById('file-input').addEventListener('change', (e) => {
+    if (e.target.files[0]) loadFile(e.target.files[0]);
+    e.target.value = '';
+  });
+
+  /* ── Load file ── */
+  async function loadFile(file) {
+    currentFile = file;
+    setState('loading');
+
+    try {
+      await ensurePdfLib();
+      pdfBytes   = await file.arrayBuffer();
+      const doc  = await PDFLib.PDFDocument.load(pdfBytes, { ignoreEncryption: true });
+      totalPages = doc.getPageCount();
+
+      fileMeta.innerHTML =
+        `<strong>${escHtml(file.name)}</strong> &nbsp;·&nbsp; ` +
+        `${totalPages} page${totalPages !== 1 ? 's' : ''} &nbsp;·&nbsp; ` +
+        `${formatBytes(file.size)}`;
+
+      pageCountAll.textContent = totalPages;
+      warnLarge.hidden         = totalPages <= LARGE_PAGE_THRESHOLD;
+
+      rangeMaxHint.textContent = `of ${totalPages}`;
+      inputFrom.max = totalPages; inputFrom.value = 1;
+      inputTo.max   = totalPages; inputTo.value   = totalPages;
+
+      setState('configure');
+      updatePreview();
+
+    } catch (err) {
+      setState('error');
+      errorMessage.textContent = err.message.toLowerCase().includes('encrypt')
+        ? 'This PDF is password-protected and cannot be split. Remove the password first.'
+        : err.message || 'Could not read the PDF file. Please try a different file.';
+    }
+  }
+
+  /* ── Mode switching ── */
+  modeBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentMode = btn.dataset.mode;
+      modeBtns.forEach(b => b.classList.toggle('active', b === btn));
+      panelAll.hidden    = currentMode !== MODES.ALL;
+      panelRange.hidden  = currentMode !== MODES.RANGE;
+      panelCustom.hidden = currentMode !== MODES.CUSTOM;
+      updatePreview();
+    });
+  });
+
+  /* ── Live preview ── */
+  inputFrom.addEventListener('input', updatePreview);
+  inputTo.addEventListener('input',   updatePreview);
+  inputCustom.addEventListener('input', updatePreview);
+
+  function updatePreview() {
+    if (!totalPages) return;
+
+    let count   = 0;
+    let text    = '';
+    let isError = false;
+
+    if (currentMode === MODES.ALL) {
+      count = totalPages;
+      text  = `Creates <strong>${totalPages}</strong> file${totalPages !== 1 ? 's' : ''} — one PDF per page`;
+
+    } else if (currentMode === MODES.RANGE) {
+      const from = parseInt(inputFrom.value, 10);
+      const to   = parseInt(inputTo.value,   10);
+      const ok   = from >= 1 && to >= from && to <= totalPages;
+
+      inputFrom.classList.toggle('invalid', !ok && !!inputFrom.value);
+      inputTo.classList.toggle('invalid',   !ok && !!inputTo.value);
+
+      if (ok) {
+        const pages = to - from + 1;
+        count = 1;
+        text  = `Creates <strong>1 file</strong> — pages ${from}–${to} (${pages} page${pages !== 1 ? 's' : ''})`;
+      } else {
+        isError = true;
+        text    = `Enter a valid range between 1 and ${totalPages}`;
+      }
+
+    } else if (currentMode === MODES.CUSTOM) {
+      const raw    = inputCustom.value.trim();
+      const ranges = raw ? parseRanges(raw, totalPages) : null;
+
+      // Don't flag as invalid while user is still typing a range (e.g. "1-" mid-type)
+      const looksIncomplete = /[-,]\s*$/.test(raw);
+      inputCustom.classList.toggle('invalid', raw.length > 0 && ranges === null && !looksIncomplete);
+
+      if (!raw) {
+        text = `Enter page ranges — e.g. <code>1-3, 5, 7-10</code>`;
+      } else if (ranges === null && looksIncomplete) {
+        text = `Continue typing your range…`;
+      } else if (ranges === null) {
+        isError = true;
+        text    = `Invalid format — use <code>1-3, 5, 7-10</code> (pages 1–${totalPages})`;
+      } else {
+        count = ranges.length;
+        text  = `Creates <strong>${count}</strong> file${count !== 1 ? 's' : ''}`;
+      }
+    }
+
+    previewText.innerHTML = text;
+    previewBox.classList.toggle('preview-error', isError);
+    btnSplit.disabled = count === 0;
+    btnSplitLabel.textContent = count > 1 ? `Split into ${count} PDFs` : count === 1 ? 'Extract pages' : 'Split PDF';
+  }
+
+  /* ── Parse custom ranges ── */
+  // Returns [{from, to}, ...] on success, null on invalid input
+  function parseRanges(input, max) {
+    const parts = input.split(',').map(s => s.trim()).filter(Boolean);
+    const result = [];
+    for (const part of parts) {
+      const m = part.match(/^(\d+)(?:\s*-\s*(\d+))?$/);
+      if (!m) return null;
+      const from = parseInt(m[1], 10);
+      const to   = m[2] ? parseInt(m[2], 10) : from;
+      if (from < 1 || to < from || to > max) return null;
+      result.push({ from, to });
+    }
+    return result.length ? result : null;
+  }
+
+  /* ── Split ── */
+  btnSplit.addEventListener('click', splitPDF);
+
+  async function splitPDF() {
+    if (!pdfBytes || !totalPages) return;
+
+    setState('processing');
+    processTitle.textContent = 'Splitting PDF…';
+    processSub.textContent   = 'Preparing pages';
+
+    try {
+      const { PDFDocument } = PDFLib;
+      const srcDoc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
+      const base   = currentFile.name.replace(/\.pdf$/i, '');
+      const output = []; // { name, bytes }
+
+      if (currentMode === MODES.ALL) {
+        for (let i = 0; i < totalPages; i++) {
+          processSub.textContent = `Extracting page ${i + 1} of ${totalPages}…`;
+          const doc = await PDFDocument.create();
+          const [p] = await doc.copyPages(srcDoc, [i]);
+          doc.addPage(p);
+          output.push({ name: `${base}-page-${String(i + 1).padStart(String(totalPages).length, '0')}.pdf`, bytes: await doc.save() });
+        }
+
+      } else if (currentMode === MODES.RANGE) {
+        const from = parseInt(inputFrom.value, 10) - 1;
+        const to   = parseInt(inputTo.value,   10) - 1;
+        const idxs = Array.from({ length: to - from + 1 }, (_, i) => from + i);
+        processSub.textContent = `Extracting ${idxs.length} pages…`;
+        const doc   = await PDFDocument.create();
+        const pages = await doc.copyPages(srcDoc, idxs);
+        pages.forEach(p => doc.addPage(p));
+        output.push({ name: `${base}-pages-${from + 1}-${to + 1}.pdf`, bytes: await doc.save() });
+
+      } else if (currentMode === MODES.CUSTOM) {
+        const ranges = parseRanges(inputCustom.value.trim(), totalPages);
+        for (let r = 0; r < ranges.length; r++) {
+          const { from, to } = ranges[r];
+          processSub.textContent = `Creating part ${r + 1} of ${ranges.length}…`;
+          const idxs  = Array.from({ length: to - from + 1 }, (_, i) => from - 1 + i);
+          const doc   = await PDFDocument.create();
+          const pages = await doc.copyPages(srcDoc, idxs);
+          pages.forEach(p => doc.addPage(p));
+          output.push({ name: `${base}-part${r + 1}-pages${from}-${to}.pdf`, bytes: await doc.save() });
+        }
+      }
+
+      resultFiles = output.map(f => ({
+        name: f.name,
+        blob: new Blob([f.bytes], { type: 'application/pdf' }),
+      }));
+
+      const totalSize = resultFiles.reduce((s, f) => s + f.blob.size, 0);
+      document.getElementById('result-files').textContent = resultFiles.length;
+      document.getElementById('result-pages').textContent = totalPages;
+      document.getElementById('result-size').textContent  = formatBytes(totalSize);
+      document.getElementById('result-desc').textContent  =
+        resultFiles.length === 1
+          ? `${resultFiles[0].name} is ready to download`
+          : `${resultFiles.length} PDFs are ready — downloading as a ZIP archive`;
+
+      const dlLabel = document.getElementById('btn-download-label');
+      dlLabel.textContent = resultFiles.length === 1
+        ? 'Download PDF'
+        : `Download ${resultFiles.length} PDFs as ZIP`;
+
+      setState('result');
+
+    } catch (err) {
+      setState('error');
+      errorMessage.textContent = err.message.toLowerCase().includes('encrypt')
+        ? 'This PDF is password-protected and cannot be split.'
+        : err.message || 'Failed to split the PDF. Please try a different file.';
+    }
+  }
+
+  /* ── Download ── */
+  document.getElementById('btn-download').addEventListener('click', downloadResults);
+
+  async function downloadResults() {
+    if (!resultFiles.length) return;
+
+    if (resultFiles.length === 1) {
+      Downloader.download(resultFiles[0].blob, resultFiles[0].name);
+      Toaster.success(`Downloading ${resultFiles[0].name}`);
+      return;
+    }
+
+    Toaster.info(`Creating ZIP of ${resultFiles.length} files…`, 3000);
+    try {
+      await ensureJSZip();
+      const zip = new JSZipLib();
+      resultFiles.forEach(f => zip.file(f.name, f.blob));
+      const blob = await zip.generateAsync({ type: 'blob' });
+      const base = currentFile.name.replace(/\.pdf$/i, '');
+      Downloader.download(blob, `${base}-split.zip`);
+      Toaster.success(`Downloaded ${resultFiles.length} PDFs as ZIP`);
+    } catch (err) {
+      Toaster.error('Could not create ZIP file. Please try again.');
+    }
+  }
+
+  /* ── Reset ── */
+  function reset() {
+    currentFile = null;
+    pdfBytes    = null;
+    totalPages  = 0;
+    resultFiles = [];
+    currentMode = MODES.ALL;
+
+    modeBtns.forEach(b => b.classList.toggle('active', b.dataset.mode === MODES.ALL));
+    panelAll.hidden    = false;
+    panelRange.hidden  = true;
+    panelCustom.hidden = true;
+
+    inputFrom.value   = '';
+    inputTo.value     = '';
+    inputCustom.value = '';
+    [inputFrom, inputTo, inputCustom].forEach(el => el.classList.remove('invalid'));
+
+    setState('upload');
+  }
+
+  document.getElementById('btn-change-file').addEventListener('click', reset);
+  document.getElementById('btn-split-another').addEventListener('click', reset);
+  document.getElementById('btn-retry').addEventListener('click', reset);
+
+  /* ── Helpers ── */
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+})();
+</script>
+</body>
+</html>

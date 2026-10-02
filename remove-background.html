@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Remove Image Background Free — AI Background Remover | LiteFile</title>
+  <meta name="description" content="Remove the background from any image free using AI — powered by the Nano Banana API. No signup, no watermark. Download as transparent PNG instantly." />
+  <link rel="canonical" href="https://litefile.cloud/remove-background" />
+
+  <meta property="og:title"        content="Remove Image Background Free — AI Background Remover | LiteFile" />
+  <meta property="og:description"  content="Remove backgrounds instantly using the Nano Banana API. No signup, no watermark. Free transparent PNG." />
+  <meta property="og:url"          content="https://litefile.cloud/remove-background" />
+  <meta property="og:type"         content="website" />
+  <meta property="og:image"        content="https://litefile.cloud/assets/og/remove-background.png" />
+  <meta name="twitter:card"        content="summary_large_image" />
+
+  <!-- FAQ Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How does background removal work?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "This tool uses the Nano Banana API to remove backgrounds. Your image is sent to Nano Banana's servers for processing and the transparent PNG result is returned within seconds. A valid API key is required."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is my image sent to a server?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes — your image is sent to the Nano Banana API for processing. The result is returned as a transparent PNG. Only the Nano Banana service receives your image during processing."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How accurate is the background removal?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "LiteFile uses the RMBG-1.4 model by BRIA AI, which performs very well on people, products, animals, and objects against clear backgrounds. Complex backgrounds or fine hair and fur may have imperfect edges — but results are typically clean enough for most use cases without further editing."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What format is the output file?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The output is a transparent PNG. PNG is the only format that supports full transparency, so your subject is saved with a clean cutout and no background — ready to place on any background in your design tool, presentation, or website."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I use this for product photos?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes — product photography on plain or white backgrounds is where this tool performs best. The model is designed for clean subject isolation, making it ideal for e-commerce product photos, portfolio images, and marketing assets."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <link rel="stylesheet" href="assets/style.css" />
+  <style>
+    /* ── Tool layout ── */
+    .tool-wrap {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .tool-card {
+      padding: var(--s6);
+    }
+
+    /* ── Upload state ── */
+    .model-notice {
+      margin-top: var(--s4);
+      display: flex;
+      align-items: flex-start;
+      gap: var(--s3);
+      padding: var(--s3) var(--s4);
+      background: var(--accent-subtle);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: var(--r-md);
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+
+    .model-notice svg { flex-shrink: 0; color: var(--accent); margin-top: 1px; }
+
+    /* ── Loading / Processing states ── */
+    .state-center {
+      text-align: center;
+      padding: var(--s7) var(--s5);
+    }
+
+    .state-center .spinner {
+      width: 36px;
+      height: 36px;
+      border-width: 3px;
+      margin: 0 auto var(--s5);
+    }
+
+    .state-title {
+      font-size: var(--text-md);
+      font-weight: 600;
+      margin-bottom: var(--s2);
+    }
+
+    .state-sub {
+      font-size: var(--text-sm);
+      color: var(--text-muted);
+      margin-bottom: var(--s5);
+    }
+
+    /* ── Comparison slider ── */
+    .comparison-wrap { position: relative; }
+
+    .comparison-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: var(--s3);
+    }
+
+    .comparison-labels span {
+      font-size: var(--text-xs);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-muted);
+    }
+
+    .comparison-container {
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--r-md);
+      cursor: col-resize;
+      user-select: none;
+      touch-action: none;
+      line-height: 0;
+      /* checkerboard behind transparency */
+      background-color: #e8e8e8;
+      background-image:
+        repeating-conic-gradient(#bbb 0% 25%, #e8e8e8 0% 50%);
+      background-size: 20px 20px;
+    }
+
+    [data-theme="light"] .comparison-container {
+      background-color: #f0f0f0;
+      background-image:
+        repeating-conic-gradient(#ccc 0% 25%, #f0f0f0 0% 50%);
+    }
+
+    .comparison-original {
+      display: block;
+      width: 100%;
+      height: auto;
+      position: absolute;
+      top: 0; left: 0;
+      object-fit: contain;
+      pointer-events: none;
+    }
+
+    .comparison-result {
+      display: block;
+      width: 100%;
+      height: auto;
+      position: absolute;
+      top: 0; left: 0;
+      clip-path: inset(0 0 0 50%);
+      pointer-events: none;
+    }
+
+    /* Spacer to give the container its height */
+    .comparison-sizer {
+      display: block;
+      width: 100%;
+    }
+
+    /* Handle */
+    .comparison-handle {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      height: 100%;
+      width: 2px;
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+
+    .comparison-handle-line {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 0 6px rgba(0,0,0,0.4);
+    }
+
+    .comparison-handle-btn {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 38px;
+      height: 38px;
+      background: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+      color: #333;
+    }
+
+    /* Result actions */
+    .result-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--s4);
+      margin-top: var(--s5);
+      flex-wrap: wrap;
+    }
+
+    .result-stats {
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: var(--s3);
+      flex-wrap: wrap;
+    }
+
+    .result-stats strong { color: var(--text-primary); }
+
+    .result-btns {
+      display: flex;
+      gap: var(--s3);
+      flex-shrink: 0;
+    }
+
+    /* Error state */
+    .error-state-inner {
+      text-align: center;
+      padding: var(--s7) var(--s5);
+    }
+
+    .error-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--error-subtle);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto var(--s4);
+      color: var(--error);
+    }
+
+    /* Related tools */
+    .related-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--s4);
+      margin-top: var(--s5);
+    }
+
+    @media (max-width: 600px) {
+      .tool-card { padding: var(--s4); }
+      .result-actions { flex-direction: column; align-items: stretch; }
+      .result-btns { flex-direction: column; }
+      .related-grid { grid-template-columns: 1fr; }
+      .state-center { padding: var(--s6) var(--s4); }
+    }
+  </style>
+</head>
+<body>
+
+<div id="nav-slot"></div>
+
+<main>
+
+  <!-- ── Hero ── -->
+  <section class="hero hero--tool" aria-label="Tool introduction">
+    <div class="container">
+      <h1>Remove Image Background Free</h1>
+      <p class="hero-tagline">AI-powered background removal via the Nano Banana API. No signup, no watermark — download as transparent PNG instantly.</p>
+      <div class="badge-row" style="justify-content:center">
+        <span class="badge badge--accent">AI-powered</span>
+        <span class="badge">No upload</span>
+        <span class="badge">100% free</span>
+        <span class="badge">No watermark</span>
+        <span class="badge">Transparent PNG</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="container">
+    <div class="tool-wrap">
+
+      <!-- ── Tool Card ── -->
+      <div class="glass-card tool-card" role="region" aria-label="Background remover tool">
+
+        <!-- STATE: Upload -->
+        <div id="state-upload">
+          <div class="upload-zone" id="upload-zone" role="button" aria-label="Upload image to remove background">
+            <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp,image/gif" aria-label="Choose image file" />
+            <div class="upload-icon" id="upload-icon-slot" aria-hidden="true"></div>
+            <h3>Drop your image here</h3>
+            <p>or click to browse your device</p>
+            <span class="upload-hint">JPG, PNG, WebP — up to 25 MB</span>
+          </div>
+          <div class="model-notice" role="note">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span><strong>Powered by Nano Banana API.</strong> Your image is sent to the Nano Banana service for processing. Requires a valid API key configured in the code.</span>
+          </div>
+        </div>
+
+        <!-- STATE: Processing -->
+        <div id="state-processing" hidden>
+          <div class="state-center">
+            <div class="spinner" role="status" aria-label="Removing background"></div>
+            <div class="state-title">Removing background…</div>
+            <div class="state-sub">Processing via Nano Banana API — usually takes a few seconds</div>
+          </div>
+        </div>
+
+        <!-- STATE: Result -->
+        <div id="state-result" hidden>
+
+          <!-- Comparison slider -->
+          <div class="comparison-wrap" id="comparison-wrap" aria-label="Before and after comparison">
+            <div class="comparison-labels">
+              <span>Original</span>
+              <span>Background removed</span>
+            </div>
+            <div class="comparison-container" id="comparison-container"
+                 role="img" aria-label="Drag to compare original and background-removed image">
+              <!-- Sizer: matches image aspect ratio -->
+              <img id="sizer-img" class="comparison-sizer" alt="" aria-hidden="true" />
+              <!-- Original -->
+              <img id="original-img" class="comparison-original" alt="Original image" />
+              <!-- Result canvas (transparent PNG) -->
+              <canvas id="result-canvas" class="comparison-result" aria-label="Background removed result"></canvas>
+              <!-- Slider handle -->
+              <div class="comparison-handle" id="comparison-handle" role="separator" aria-orientation="vertical">
+                <div class="comparison-handle-line"></div>
+                <div class="comparison-handle-btn" aria-hidden="true">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                  </svg>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-left:-4px">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stats + actions -->
+          <div class="result-actions">
+            <div class="result-stats">
+              <span id="original-size-stat"></span>
+              <span style="color:var(--text-muted)">→</span>
+              <span><strong>Transparent PNG</strong></span>
+              <span id="model-badge" class="badge badge--accent" style="margin-left:var(--s2)">Nano Banana API</span>
+            </div>
+            <div class="result-btns">
+              <button class="btn btn-ghost" id="btn-reset">Process another</button>
+              <button class="btn btn-primary btn-lg" id="btn-download">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Download PNG
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- STATE: Error -->
+        <div id="state-error" hidden>
+          <div class="error-state-inner">
+            <div class="error-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div class="state-title text-error" id="error-title">Processing failed</div>
+            <p class="state-sub" id="error-message">Something went wrong. Please try a different image.</p>
+            <button class="btn btn-secondary" id="btn-retry">Try another image</button>
+          </div>
+        </div>
+
+      </div><!-- /tool-card -->
+
+      <!-- ── How it works ── -->
+      <section class="section--sm" aria-labelledby="how-heading">
+        <p class="section-label">Simple process</p>
+        <h2 class="section-heading fade-in" id="how-heading">How it works</h2>
+        <div class="steps">
+          <div class="step glass-card fade-in">
+            <div class="step-number" aria-hidden="true">1</div>
+            <h3>Drop your image</h3>
+            <p>Upload any JPG, PNG, or WebP image. Photos of people, products, animals, and objects all work well.</p>
+          </div>
+          <div class="step glass-card fade-in">
+            <div class="step-number" aria-hidden="true">2</div>
+            <h3>AI removes the background</h3>
+            <p>The Nano Banana API analyses your image and generates a precise cutout — results are returned within seconds.</p>
+          </div>
+          <div class="step glass-card fade-in">
+            <div class="step-number" aria-hidden="true">3</div>
+            <h3>Download transparent PNG</h3>
+            <p>Your image downloads as a transparent PNG — ready for any background, design tool, or website.</p>
+          </div>
+        </div>
+      </section>
+
+      <hr class="divider" />
+
+      <!-- ── FAQ ── -->
+      <section class="section--sm" aria-labelledby="faq-heading">
+        <p class="section-label">Questions</p>
+        <h2 class="section-heading fade-in" id="faq-heading">Frequently asked questions</h2>
+        <div class="faq-list mt-4">
+
+          <details class="faq-item fade-in">
+            <summary class="faq-question">How does it work?</summary>
+            <div class="faq-answer">
+              <p>This tool uses the Nano Banana API to remove backgrounds. Your image is sent to Nano Banana's servers for processing and the result (a transparent PNG) is returned within seconds.</p>
+              <p>A valid Nano Banana API key must be configured in the tool to use it.</p>
+            </div>
+          </details>
+
+          <details class="faq-item fade-in">
+            <summary class="faq-question">Is my image sent to a server?</summary>
+            <div class="faq-answer">
+              <p>Yes — your image is sent to the Nano Banana API for processing. The result is returned as a transparent PNG and is not stored. Only the Nano Banana service receives your image during processing.</p>
+            </div>
+          </details>
+
+          <details class="faq-item fade-in">
+            <summary class="faq-question">How accurate is the background removal?</summary>
+            <div class="faq-answer">
+              <p>The Nano Banana API delivers fast, high-quality background removal suitable for people, products, animals, and objects against clear backgrounds.</p>
+              <p>Complex or very busy backgrounds may have imperfect edges around fine details like hair and fur. For most everyday use cases — product photos, portraits, logos — results are clean and ready to use without further editing.</p>
+            </div>
+          </details>
+
+          <details class="faq-item fade-in">
+            <summary class="faq-question">What format is the output file?</summary>
+            <div class="faq-answer">
+              <p>The output is a transparent PNG. PNG is the only widely supported format that preserves full transparency, so your subject is saved with a clean cutout — no background, just the subject.</p>
+              <p>You can place the PNG directly on any background in Canva, Figma, Photoshop, PowerPoint, or any other tool that supports transparent images.</p>
+            </div>
+          </details>
+
+          <details class="faq-item fade-in">
+            <summary class="faq-question">Can I use this for product photos?</summary>
+            <div class="faq-answer">
+              <p>Yes — product photography on plain or white backgrounds is where this tool performs best. The model is designed for clean subject isolation, making it ideal for e-commerce listings, portfolio images, and marketing assets.</p>
+              <p>After removing the background, use <a href="/compress-image">Compress Image</a> to reduce the PNG file size, or <a href="/resize-image">Resize Image</a> to get exact pixel dimensions for your platform.</p>
+            </div>
+          </details>
+
+        </div>
+      </section>
+
+      <hr class="divider" />
+
+      <!-- ── Related tools ── -->
+      <section class="section--sm" aria-labelledby="related-heading">
+        <p class="section-label">What's next</p>
+        <h2 class="section-heading fade-in" id="related-heading">Related tools</h2>
+        <div class="related-grid">
+          <a href="/compress-image" class="glass-card tool-card fade-in" aria-label="Compress Image tool">
+            <div class="tool-card-label">Image</div>
+            <h3>Compress Image</h3>
+            <p>Reduce the PNG file size after removing the background — useful before uploading to websites or apps.</p>
+            <div class="tool-card-arrow" aria-hidden="true">→</div>
+          </a>
+          <a href="/resize-image" class="glass-card tool-card fade-in" aria-label="Resize Image tool">
+            <div class="tool-card-label">Image</div>
+            <h3>Resize Image</h3>
+            <p>Resize your transparent PNG to exact pixel dimensions for e-commerce platforms, social media, or print.</p>
+            <div class="tool-card-arrow" aria-hidden="true">→</div>
+          </a>
+        </div>
+      </section>
+
+    </div><!-- /tool-wrap -->
+  </div><!-- /container -->
+</main>
+
+<div id="footer-slot"></div>
+
+<script src="assets/utils.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  /* ── Nano Banana API config ── */
+  const API_KEY = 'YOUR_NANO_BANANA_API_KEY'; // Replace with your Nano Banana API key
+  const API_URL = 'https://api.nanobanana.io/remove-bg'; // Nano Banana API endpoint
+
+  /* ── DOM refs ── */
+  const states = {
+    upload:     document.getElementById('state-upload'),
+    processing: document.getElementById('state-processing'),
+    result:     document.getElementById('state-result'),
+    error:      document.getElementById('state-error'),
+  };
+
+  const errorTitle    = document.getElementById('error-title');
+  const errorMessage  = document.getElementById('error-message');
+  const originalImg   = document.getElementById('original-img');
+  const sizerImg      = document.getElementById('sizer-img');
+  const resultCanvas  = document.getElementById('result-canvas');
+  const originalStat  = document.getElementById('original-size-stat');
+
+  /* ── State ── */
+  let currentFile     = null;
+  let originalDataURL = null;
+
+  /* ── Inject icons ── */
+  document.getElementById('upload-icon-slot').innerHTML = Icons.upload();
+
+  /* ── Set state ── */
+  function setState(name) {
+    currentState = name;
+    Object.entries(states).forEach(([key, el]) => {
+      el.hidden = key !== name;
+    });
+  }
+
+  /* ── File drop zone ── */
+  new FileDropZone('#upload-zone', {
+    accept:  ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+    maxSize: 25 * 1024 * 1024, // 25 MB
+    onFile:  (file) => processFile(file),
+  });
+
+  /* ── Process file ── */
+  function processFile(file) {
+    currentFile = file;
+    originalStat.textContent = formatBytes(file.size);
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      originalDataURL = e.target.result;
+      originalImg.src = originalDataURL;
+      sizerImg.src    = originalDataURL;
+
+      setState('processing');
+
+      try {
+        const resultBlob = await removeBackground(file);
+        await applyResultImage(resultBlob);
+      } catch (err) {
+        setState('error');
+        errorMessage.textContent = err.message || 'Background removal failed. Please check your API key and try again.';
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+
+  /* ── Call Nano Banana API ── */
+  async function removeBackground(file) {
+    const formData = new FormData();
+    formData.append('image_file', file);
+
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${API_KEY}` },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      let msg = `API error: ${response.status}`;
+      try { const j = await response.json(); msg = j.message || j.error || msg; } catch {}
+      throw new Error(msg);
+    }
+
+    return response.blob();
+  }
+
+  /* ── Draw API result PNG onto the result canvas ── */
+  function applyResultImage(blob) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(blob);
+      const img = new Image();
+      img.onload = () => {
+        resultCanvas.width  = img.naturalWidth;
+        resultCanvas.height = img.naturalHeight;
+        const ctx = resultCanvas.getContext('2d');
+        ctx.clearRect(0, 0, img.naturalWidth, img.naturalHeight);
+        ctx.drawImage(img, 0, 0);
+        URL.revokeObjectURL(url);
+        setState('result');
+        initSlider();
+        resolve();
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        reject(new Error('Could not display the result image.'));
+      };
+      img.src = url;
+    });
+  }
+
+  /* ── Comparison slider ── */
+  function initSlider() {
+    const container = document.getElementById('comparison-container');
+    const handle    = document.getElementById('comparison-handle');
+    let   isDragging = false;
+    let   sliderPct  = 50;
+
+    function setSlider(pct) {
+      sliderPct = Math.min(100, Math.max(0, pct));
+      resultCanvas.style.clipPath    = `inset(0 0 0 ${sliderPct}%)`;
+      handle.style.left              = sliderPct + '%';
+      handle.setAttribute('aria-valuenow', Math.round(sliderPct));
+    }
+
+    function getX(e) {
+      return (e.touches ? e.touches[0] : e).clientX;
+    }
+
+    function onMove(e) {
+      if (!isDragging) return;
+      const rect = container.getBoundingClientRect();
+      const pct  = ((getX(e) - rect.left) / rect.width) * 100;
+      setSlider(pct);
+    }
+
+    container.addEventListener('mousedown',  (e) => { isDragging = true; onMove(e); });
+    container.addEventListener('touchstart', (e) => { isDragging = true; onMove(e); }, { passive: true });
+    document.addEventListener('mousemove',   onMove);
+    document.addEventListener('touchmove',   onMove, { passive: true });
+    document.addEventListener('mouseup',     () => { isDragging = false; });
+    document.addEventListener('touchend',    () => { isDragging = false; });
+
+    // Keyboard accessibility
+    handle.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft')  setSlider(sliderPct - 5);
+      if (e.key === 'ArrowRight') setSlider(sliderPct + 5);
+    });
+
+    setSlider(50);
+  }
+
+  /* ── Download ── */
+  document.getElementById('btn-download').addEventListener('click', () => {
+    if (!currentFile) return;
+    resultCanvas.toBlob((blob) => {
+      if (!blob) { Toaster.error('Could not create download file.'); return; }
+      const name = currentFile.name.replace(/\.[^.]+$/, '') + '-no-bg.png';
+      Downloader.download(blob, name);
+      Toaster.success('Downloading ' + name);
+    }, 'image/png');
+  });
+
+  /* ── Reset ── */
+  function resetTool() {
+    currentFile     = null;
+    originalDataURL = null;
+    originalImg.src = '';
+    sizerImg.src    = '';
+    resultCanvas.getContext('2d').clearRect(0, 0, resultCanvas.width, resultCanvas.height);
+    setState('upload');
+  }
+
+  document.getElementById('btn-reset').addEventListener('click', resetTool);
+  document.getElementById('btn-retry').addEventListener('click', resetTool);
+
+})();
+</script>
+</body>
+</html>
